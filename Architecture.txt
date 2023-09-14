@@ -1,0 +1,53 @@
+class Move
+-> int: index of piece in State
+-> tuple(int,int) newCoordinates
+
+
+class State
+-> list[tuple(int,int)] pieces: list of white pieces' coordinates (first half) and black pieces' coordinates (second half)
+-> getBlackPieces()
+-> getWhitePieces()
+-> isEquivalent(State state) => bool
+
+
+enum Color:
+white
+black
+
+
+class: Agent
+public functions
+-> getBestMove(State state, Color color) => Move (time limit 8 seconds!)
+private functions
+-> nextStates(State state, Color color) => list(tuple(Move, State))
+-> quality(State state, Color color) => float
+-> isEndState(State state) => Color/None (for winner)
+
+
+class: GameClient (remembers game state, displays state changes and status messages)
+public functions
+-> init(string hostname, int port, Color color, int gameID, State initialState)
+private functions
+-> decodeMove(string) => Move
+-> encodeMove(Move move) => string
+-> updateState(Move move)
+
+
+when running script:
+-> instantiate Agent class
+-> instantiate GameClient class
+
+
+
+Options for agent finding best move:
+
+-> alpha-beta minimax with custom heuristic function
+-> alpha-beta minimax with Neural Network heuristic function
+-> above + iterative deepening
+NegaScout (or Scout)
+Transposition Tables and Caching
+Aspiration Windows
+Quiescence Search
+-> monte-carlo tree search (might not be good for time constraint)
+
+predict opponent likely next moves, search using that?
