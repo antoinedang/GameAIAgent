@@ -41,13 +41,5 @@ when running script:
 
 Options for agent finding best move:
 
--> alpha-beta minimax with custom heuristic function
--> alpha-beta minimax with Neural Network heuristic function
--> above + iterative deepening
-NegaScout (or Scout)
-Transposition Tables and Caching
-Aspiration Windows
-Quiescence Search
--> monte-carlo tree search (might not be good for time constraint)
-
-predict opponent likely next moves, search using that?
+-> alpha-beta minimax with rationale-based heuristic function
+-> alpha-beta minimax with Neural Network-based heuristic function

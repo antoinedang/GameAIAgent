@@ -45,6 +45,9 @@ X,X,O,O, , ,
 Indicate the total number of states visited by your program, starting from each state shown, when using depth cutoffs of 3, 4, 5 and 6, both with minimax and alpha-beta. Assume it is white's turn to play.
 Does the number of states visited depend on the order in which you generate new states during the search? 1) Explain your answer and 2) justify it using results from your program.
 If two agents are to play against each other for scenario (c) for a depth cutoff of 6, for which, if any, of minimax and/or alpha-beta pruning will the losing agent try to delay its defeat? Explain your answer.
+
+
+
 Part II
 In Part I of this assignment, our evaluation function was extremely simplistic. This left our agent with the ability to make intelligent moves only when its lookahead horizon could detect a sequence leading to a guaranteed win. However, as described in the text, when we are forced to cut off the search at non-leaf nodes, we can exploit a heuristic evaluation function to provide a meaningful value representing the "goodness" of the corresponding state.
 
