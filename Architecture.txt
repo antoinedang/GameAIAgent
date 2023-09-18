@@ -1,5 +1,5 @@
 class Move
--> int: index of piece in State
+-> tuple(int,int) oldCoordinates
 -> tuple(int,int) newCoordinates
 
 
@@ -8,6 +8,7 @@ class State
 -> getBlackPieces()
 -> getWhitePieces()
 -> isEquivalent(State state) => bool
+-> isEndState() => Color/None (for winner)
 
 
 enum Color:
@@ -21,7 +22,6 @@ public functions
 private functions
 -> nextStates(State state, Color color) => list(tuple(Move, State))
 -> quality(State state, Color color) => float
--> isEndState(State state) => Color/None (for winner)
 
 
 class: GameClient (remembers game state, displays state changes and status messages)
