@@ -6,24 +6,32 @@ class Agent:
         self.color = color
         self.maxSearchDepth = maxSearchDepth
     def getNextMove(self, state):
+        self.states_visited = []
         return state.getMoveToState(self.alphaBetaMiniMaxSearch(state)[1])
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
+        self.states_visited.append(state)
         if depth > self.maxSearchDepth or state.getWinner() is not None: return state.quality(self.color), state
         if isMaxPlayerTurn:
             bestValue = -math.inf, None
-            for state in state.possibleNextStates():
+            for child_state in state.possibleNextStates(self.color):
+                if self.hasBeenVisited(child_state): continue
                 value = self.alphaBetaMiniMaxSearch(child_state, depth+1, alpha, beta, False)
                 bestValue = max(bestValue, value, key=lambda x: x[0])
                 alpha = max(alpha, bestValue[0])
                 if alpha >= beta: break
         else:
             bestValue = math.inf, None       
-            for child_state in state.possibleNextStates():
+            for child_state in state.possibleNextStates(self.color):
+                if self.hasBeenVisited(child_state): continue
                 value = self.alphaBetaMiniMaxSearch(child_state, depth+1, alpha, beta, True)
                 bestValue = min(bestValue, value, key=lambda x: x[0])
                 beta = min(alpha, bestValue[0])
                 if alpha >= beta: break
         return bestValue
+    def hasBeenVisited(self,state):
+        for previous_state in self.states_visited:
+            if state.isEquivalent(previous_state): return True
+        return False
 
 class GameClient:
     def __init__(self, hostname, port, color, gameID, initialBoardState=State()):
@@ -72,6 +80,7 @@ class GameClient:
         if winner is not None:
             print("Game Over!")
             if winner == Color.white: winner = "White"
-            else: winner = "Black"
+            elif winner == Color.white: winner = "Black"
+            else: winner = "Stalemate. No one"
             print(winner + " wins!")
             exit()

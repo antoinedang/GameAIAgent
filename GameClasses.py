@@ -1,6 +1,11 @@
+import numpy as np
+
 class State:
-    def __init__(self, whitePieceCoordinates=[(5,1), (1,3), (1,4), (7,4), (7,5), (3,7)], blackPieceCoordinates=[(2,1), (3,1), (7,2), (1,6), (5,7), (6,7)]):
-        self.pieces = whitePieceCoordinates + blackPieceCoordinates
+    def __init__(self, whitePieceCoordinates=[[5,1], [1,3], [1,4], [7,4], [7,5], [3,7]], blackPieceCoordinates=[(2,1), (3,1), (7,2), (1,6), (5,7), (6,7)]):
+        np_white_pieces = np.array(whitePieceCoordinates).reshape(6,2)
+        np_black_pieces = np.array(blackPieceCoordinates).reshape(6,2)
+        self.pieces = np.vstack((np_white_pieces, np_black_pieces)) 
+        print(self.pieces)
     def display(self):
         print("    1 2 3 4 5 6 7 ")
         print("")
@@ -8,8 +13,8 @@ class State:
             print(str(column+1) + "   ", end='')
             for row in range(7):
                 try:
-                    piece_index = self.pieces.index((row+1, column+1))
-                except ValueError:
+                    piece_index = np.where((self.pieces[:,0] == row+1) & (self.pieces[:,1] == column+1))[0][0]
+                except IndexError:
                     piece_index = -1
                 if piece_index == -1:
                     print(" ,", end='')
@@ -31,16 +36,33 @@ class State:
         pass
     def quality(self, color):
         winner = self.getWinner()
-        if winner == color:
+        if winner == "stalemate " + color: return -0.05 # AGENT CANNOT MOVE
+        elif "stalemate" in winner: return 0.05 # OPPONENT CAN NOT MOVE
+        elif winner == color: return 1 # AGENT WIN
+        elif winner is not None: return 1 # OPPONENT WIN
+        else: #NO WINNER
             return 1
-        elif winner is None:
-            return 0
-        else:
-            return -1
     def possibleNextStates(self, color):
-        pass
+        return []
     def getMoveToState(self, state):
         pass
+    def isEquivalent(self, state):
+        # Sort the pieces to be comparable
+        state.pieces = np.sort(state.pieces, axis=0)
+        self.pieces = np.sort(self.pieces, axis=0)
+
+        #negate rows (flip horizontally)
+        #negate columns (flip vertically)
+        #switch rows and columns (rotate 90 degrees)
+
+        # Compare the sorted piece arrays
+        if np.array_equal(state.pieces, self.pieces) \
+            or np.array_equal(state.pieces, self.pieces * -1 + 8) \
+            or np.array_equal(state.pieces * -1 + 8, self.pieces) \
+            or np.array_equal(state.pieces.T, self.pieces.T) \
+                :
+            return True
+        return False
         
         
     
