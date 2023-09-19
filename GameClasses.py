@@ -82,33 +82,33 @@ class State:
         
     def getWinner(self): # TODO
         def isInSquare(piece, pieces_list):
-            up = (piece + directions[2]).tolist()
-            topleft = (piece + directions[0] + directions[2]).tolist()
-            left = (piece + directions[0]).tolist()
+            up = (piece + directions[2]).tolist() in pieces_list
+            topleft = (piece + directions[0] + directions[2]).tolist() in pieces_list
+            left = (piece + directions[0]).tolist() in pieces_list
             #check if square goes to top left of piece
-            if up in pieces_list \
-                    and topleft in pieces_list \
-                    and left in pieces_list:
+            if up \
+                    and topleft \
+                    and left:
                 return True
-            down = (piece + directions[3]).tolist()
-            bottomleft = (piece + directions[0] + directions[3]).tolist()
+            down = (piece + directions[3]).tolist() in pieces_list
+            bottomleft = (piece + directions[0] + directions[3]).tolist() in pieces_list
             #check if square goes to bottom left of piece
-            if down in pieces_list \
-                    and bottomleft in pieces_list \
-                    and left in pieces_list:
+            if down \
+                    and bottomleft \
+                    and left:
                 return True
-            right = (piece + directions[1]).tolist()
-            topright = (piece + directions[1] + directions[2]).tolist()
+            right = (piece + directions[1]).tolist() in pieces_list
+            topright = (piece + directions[1] + directions[2]).tolist() in pieces_list
             #check if square goes to top right of piece
-            if up in pieces_list \
-                    and topright in pieces_list \
-                    and right in pieces_list:
+            if up \
+                    and topright \
+                    and right:
                 return True
-            bottomright = (piece + directions[1] + directions[3]).tolist()
+            bottomright = (piece + directions[1] + directions[3]).tolist() in pieces_list
             #check if square goes to bottom right of piece
-            if down in pieces_list \
-                    and bottomright in pieces_list \
-                    and right in pieces_list:
+            if down \
+                    and bottomright \
+                    and right:
                 return True
             
         white_pieces = self.pieces[:self.white_piece_count]
