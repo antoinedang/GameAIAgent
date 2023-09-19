@@ -140,22 +140,18 @@ class State:
             movable_pieces = self.pieces[int(len(self.pieces)/2):]
             i_offset = int(len(self.pieces)/2)
         
-        possible_moves = []
+        possible_next_states = []
         for i in range(len(movable_pieces)):
             max_move_dist_overall = self.numSquaresMovable(i+i_offset)
             for direction in [np.array([-1,0]), np.array([1,0]), np.array([0,-1]), np.array([0,1])]:
                 max_move_dist = min(max_move_dist_overall, self.numFreeSquaresInDirection(movable_pieces[i], direction))
                 for m in range(max_move_dist):
                     pieceCoordinatesAfterMove = movable_pieces[i] + direction * (m + 1)
-                    possible_moves.append(Move(oldCoordinates=movable_pieces[i], newCoordinates=pieceCoordinatesAfterMove))
+                    possible_state = State()
+                    possible_state.pieces = np.copy(self.pieces)
+                    possible_state.update(Move(oldCoordinates=movable_pieces[i], newCoordinates=pieceCoordinatesAfterMove))
+                    possible_next_states.append(possible_state)
         
-        possible_next_states = []    
-        for move in possible_moves:
-            possible_state = State()
-            possible_state.pieces = np.copy(self.pieces)
-            possible_state.update(move)
-            possible_next_states.append(possible_state)
-            
         return possible_next_states
     
     def getMoveToState(self, state):
