@@ -2,20 +2,20 @@ from gameClasses import State, Move, Color
 import math
 
 class Agent:
-    def __init__(self, color, maxSearchDepth=3):
+    def __init__(self, color, maxSearchDepth=6):
         self.color = color
         self.maxSearchDepth = maxSearchDepth
         self.opponent_stalemate = 0.01
         self.agent_stalemate = -0.01
         
     def getNextMove(self, state):
-        self.states_visited = []
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
         return state.getMoveToState(best_next_state)
     
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
-        self.states_visited.append(state)
-        if depth >= self.maxSearchDepth or state.getWinner() is not None: return state.quality(self.color, depth), None
+        if depth >= self.maxSearchDepth: return state.quality(self.color, depth), None
+        winner = state.getWinner()
+        if winner is not None: return state.quality(self.color, depth, winner=winner), None
         bestChildState = None     
         if isMaxPlayerTurn:
             bestValue = -math.inf
@@ -23,7 +23,6 @@ class Agent:
             next_states = state.possibleNextStates(self.color)
             if len(next_states) == 0: return self.agent_stalemate, None
             for child_state in next_states:
-                if self.hasBeenVisited(child_state): continue
                 value = self.alphaBetaMiniMaxSearch(child_state, depth+1, alpha, beta, False)[0]
                 if bestValue < value:
                     bestValue = value
@@ -35,17 +34,11 @@ class Agent:
             next_states = state.possibleNextStates(Color.other(self.color))
             if len(next_states) == 0: return self.opponent_stalemate, None
             for child_state in next_states:
-                if self.hasBeenVisited(child_state): continue
                 value = self.alphaBetaMiniMaxSearch(child_state, depth+1, alpha, beta, True)[0]
                 bestValue = min(bestValue, value)
                 beta = min(alpha, bestValue)
                 if alpha >= beta: break
         return bestValue, bestChildState
-    
-    def hasBeenVisited(self,state):
-        for previous_state in self.states_visited:
-            if state.isEquivalent(previous_state): return True
-        return False
 
 class GameClient:
     def __init__(self, hostname, port, color, gameID, initialBoardState=State()):
@@ -75,7 +68,7 @@ class GameClient:
             print("Received " + opponent_move)
             
             #update state of the board after opponent's move
-            self.board_state.update(Move(string=opponent_move))
+            self.board_state.update(Move(string=opponent_move), check_validity=True)
             self.board_state.display()
             self.checkForGameEnd(color)
             
