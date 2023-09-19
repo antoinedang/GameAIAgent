@@ -15,7 +15,7 @@ class Agent:
     
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
         self.states_visited.append(state)
-        if depth > self.maxSearchDepth or state.getWinner() is not None: return state.quality(self.color, depth), None
+        if depth >= self.maxSearchDepth or state.getWinner() is not None: return state.quality(self.color, depth), None
         bestChildState = None     
         if isMaxPlayerTurn:
             bestValue = -math.inf
