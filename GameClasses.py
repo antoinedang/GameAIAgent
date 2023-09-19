@@ -45,14 +45,14 @@ class State:
         elif move.newCoordinates[1] - move.oldCoordinates[1] > 0: step_amt = np.array([0,1])
         else: step_amt = np.array([0,-1])
         #check that no piece lies along the path to that square
-        if self.numFreeSpaces(move.oldCoordinates, step_amt) < move_distance: return False
+        if self.numFreeSquaresInDirection(move.oldCoordinates, step_amt) < move_distance: return False
             
         #check that piece is able to be moved by desired amount
         if move_distance > self.numSquaresMovable(piece_index): return False
         
         return True
     
-    def numFreeSpaces(self, start_coordinates, step_amt):
+    def numFreeSquaresInDirection(self, start_coordinates, step_amt):
         i = start_coordinates + step_amt
         num_steps = 0
         while True:
@@ -70,7 +70,7 @@ class State:
         else:
             distances_to_other_pieces = np.linalg.norm(self.pieces[:int(len(self.pieces)/2)] - np.array(self.pieces[piece_index]), axis=1)
         close_pieces = distances_to_other_pieces < 2
-        return 3 - np.count_nonzero(close_pieces)
+        return max(3 - np.count_nonzero(close_pieces), 0)
     
     def update(self, move):
         if not self.isValidMove(move):
@@ -106,25 +106,32 @@ class State:
         white_pieces = self.pieces[:int(len(self.pieces)/2)]
         for piece in white_pieces:
             if isInSquare(piece, white_pieces):
-                print("win")
-                self.display()
                 return Color.white
         black_pieces = self.pieces[int(len(self.pieces)/2):]
         for piece in black_pieces:
             if isInSquare(piece, black_pieces):
-                print("win")
-                self.display()
                 return Color.black
             
         return None
     
-    def quality(self, color):
+    def quality(self, color, depth):
         winner = self.getWinner()
-        if winner == color: return 1 # AGENT WIN
-        elif winner is not None: return -1 # OPPONENT WIN
+        if winner == color: return 10/depth # AGENT WIN
+        elif winner is not None: return -10/depth # OPPONENT WIN
         else: #NO CLEAR WINNER
-            return random.uniform(-1, 1)
-        
+            #simple heuristic: approx. distance between agent pieces minus approx. distance between opponent pieces
+            if color == Color.white:
+                our_pieces = self.pieces[:int(len(self.pieces)/2)]
+                opponent_pieces = self.pieces[int(len(self.pieces)/2):]
+            else:
+                our_pieces = self.pieces[int(len(self.pieces)/2):]
+                opponent_pieces = self.pieces[:int(len(self.pieces)/2)]
+                
+            #we can approximate this by getting the standard deviation of the x and y coordinates of our pieces
+            our_std_avg = 1 - (np.std(our_pieces[:,0]) + np.std(our_pieces[:,1])) / (2*7)
+            opponent_std_avg = -1 * (1 - (np.std(opponent_pieces[:,0]) + np.std(opponent_pieces[:,1])) / (2*7))
+            return our_std_avg + opponent_std_avg
+
     def possibleNextStates(self, color):
         if color == Color.white:
             movable_pieces = self.pieces[:int(len(self.pieces)/2)]
@@ -137,7 +144,7 @@ class State:
         for i in range(len(movable_pieces)):
             max_move_dist_overall = self.numSquaresMovable(i+i_offset)
             for direction in [np.array([-1,0]), np.array([1,0]), np.array([0,-1]), np.array([0,1])]:
-                max_move_dist = min(max_move_dist_overall, self.numFreeSpaces(movable_pieces[i], direction))
+                max_move_dist = min(max_move_dist_overall, self.numFreeSquaresInDirection(movable_pieces[i], direction))
                 for m in range(max_move_dist):
                     pieceCoordinatesAfterMove = movable_pieces[i] + direction * (m + 1)
                     possible_moves.append(Move(oldCoordinates=movable_pieces[i], newCoordinates=pieceCoordinatesAfterMove))

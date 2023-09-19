@@ -16,9 +16,6 @@ def checkForGameEnd(board_state, colorTurn):
 board_state = State()
 board_state.display()
 
-# board_state.update(Move(string="12E1\n"))
-# board_state.display()
-
 white_player = Agent(Color.white)
 black_player = Agent(Color.black)
 
