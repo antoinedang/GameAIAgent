@@ -33,15 +33,15 @@ class State:
     def isValidMove(self, move):
         #check that the move makes sense
         
-        if (self.oldCoordinates[0] == self.newCoordinates[0] and self.oldCoordinates[1] == self.newCoordinates[1]) \
-            or (self.oldCoordinates[0] != self.newCoordinates[0] and self.oldCoordinates[1] != self.newCoordinates[1]): return False
+        if (move.oldCoordinates[0] == move.newCoordinates[0] and move.oldCoordinates[1] == move.newCoordinates[1]) \
+            or (move.oldCoordinates[0] != move.newCoordinates[0] and move.oldCoordinates[1] != move.newCoordinates[1]): return False
         if move.oldCoordinates[0] < 1 or move.oldCoordinates[1] < 1 \
             or move.oldCoordinates[0] > 7 or move.oldCoordinates[1] > 7 \
                 or move.newCoordinates[0] < 1 or move.newCoordinates[1] < 1 \
                     or move.newCoordinates[0] > 7 or move.newCoordinates[1] > 7: return False
         
         #check that a piece is at oldCoordinates
-        piece_index = self.getPieceIndexByCoordinates(self,move.oldCoordinates[0],move.oldCoordinates[1])
+        piece_index = self.getPieceIndexByCoordinates(move.oldCoordinates[0],move.oldCoordinates[1])
         if piece_index < 0: return False
         
         
@@ -84,6 +84,7 @@ class State:
             exit()
         piece_index = self.getPieceIndexByCoordinates(move.oldCoordinates[0],move.oldCoordinates[1])
         self.pieces[piece_index] = move.newCoordinates
+        self.pieces_list = self.pieces.tolist()
         
     def getWinner(self): # TODO
         pieces_list = [tuple(piece) for piece in self.getPiecesList()]

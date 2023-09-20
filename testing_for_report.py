@@ -22,23 +22,21 @@ black_player = Agent(Color.black)
 # for i in range(10000):
 #     board_state.possibleNextStates(Color.black)
 #     board_state.possibleNextStates(Color.white)
-for i in range(1):
-    white_move = white_player.getNextMove(board_state)
-    print("White plays " + str(white_move))
-board_state.display()
+# for i in range(1):
+#     white_move = white_player.getNextMove(board_state)
+#     print("White plays " + str(white_move))
+# board_state.display()
 # board_state.update(white_move)
 # checkForGameEnd(board_state, Color.black)
 
-exit()
-
-for i in range(10):
+for i in range(5):
     white_move = white_player.getNextMove(board_state)
     print("White plays " + str(white_move))
-    board_state.update(white_move)
+    board_state.update(white_move, check_validity=True)
     checkForGameEnd(board_state, Color.black)
     board_state.display()
     black_move = black_player.getNextMove(board_state)
     print("Black plays " + str(black_move))
-    board_state.update(black_move)
+    board_state.update(black_move, check_validity=True)
     checkForGameEnd(board_state, Color.white)
     board_state.display()
