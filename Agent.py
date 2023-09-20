@@ -1,4 +1,4 @@
-from gameClasses import State, Move, Color
+from GameClasses import State, Move, Color
 import math
 
 class Agent:

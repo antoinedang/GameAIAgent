@@ -11,6 +11,7 @@ class State:
         np_black_pieces = np.array(blackPieceCoordinates).reshape(-1,2)
         self.pieces = np.vstack((np_white_pieces, np_black_pieces)) 
         self.white_piece_count = int(len(self.pieces)/2)
+        self.index_combinations = combinations(range(self.white_piece_count), 4)
         
     def display(self):
         print("  x 1 2 3 4 5 6 7 ")
@@ -86,10 +87,9 @@ class State:
         
     def getWinner(self): # TODO
         pieces_list = [tuple(piece) for piece in self.getPiecesList()]
-        for pieces in combinations(pieces_list[:self.white_piece_count], 4):
-            if is_square_map[frozenset(pieces)]: return Color.white
-        for pieces in combinations(pieces_list[self.white_piece_count:], 4):
-            if is_square_map[frozenset(pieces)]: return Color.black
+        for i_combo in self.index_combinations:
+            if is_square_map[frozenset([pieces_list[i] for i in i_combo])]: return Color.white
+            if is_square_map[frozenset([pieces_list[i+self.white_piece_count] for i in i_combo])]: return Color.black
             
         return None
         
@@ -106,26 +106,21 @@ class State:
                 our_pieces = self.pieces[self.white_piece_count:]
                 opponent_pieces = self.pieces[:self.white_piece_count]
                 
-            #we can approximate this by getting the standard deviation of the x and y coordinates of our pieces
+            #we can approximate this by getting the variances of the x and y coordinates of our pieces vs. the enemy pieces
             our_std_avg = 1 - (_variance(our_pieces[:,0]) + _variance(our_pieces[:,1])) / (2*7)
             opponent_std_avg = -1 * (1 - (_variance(opponent_pieces[:,0]) + _variance(opponent_pieces[:,1])) / (2*7))
             return our_std_avg + opponent_std_avg
 
     def possibleNextStates(self, color): # TODO
-        if color == Color.white:
-            movable_pieces = self.pieces[:self.white_piece_count]
-            enemy_pieces = self.pieces[self.white_piece_count:]
-            i_offset = 0
-        else:
-            movable_pieces = self.pieces[self.white_piece_count:]
-            enemy_pieces = self.pieces[:self.white_piece_count]
-            i_offset = self.white_piece_count
-            
+        if color == Color.white: i_offset = 0
+        else: i_offset = self.white_piece_count
+
         pieces_list = self.getPiecesList()
+        enemy_pieces = pieces_list[i_offset:self.white_piece_count+i_offset]
         
         possible_next_states = []
         for i in range(self.white_piece_count):
-            movable_piece = movable_pieces[i]
+            movable_piece = pieces_list[i+i_offset]
             max_move_dist = 3
             for e in enemy_pieces:
                 dist = sqrt((e[0]-movable_piece[0])**2 + (e[1]-movable_piece[1])**2)
@@ -147,6 +142,7 @@ class State:
                     possible_state.pieces[i+i_offset][0] = pieceCoordinatesAfterMove[0]
                     possible_state.pieces[i+i_offset][1] = pieceCoordinatesAfterMove[1]
                     possible_state.white_piece_count = self.white_piece_count
+                    possible_state.index_combinations = self.index_combinations
                     
                     possible_next_states.append(possible_state)
         
@@ -238,7 +234,10 @@ class Color:
 def _variance(x):
     n = len(x)
     mean = sum(x) / n
-    return sum((x - mean) ** 2 for x in x) / n
+    var = 0
+    for x_i in x:
+        var += (x_i - mean) ** 2
+    return var / n
 
 with open('is_square_map.pickle', 'rb') as file:
     is_square_map = pickle.load(file)

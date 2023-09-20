@@ -1,5 +1,5 @@
-from gameClasses import State, Move, Color
-from agent import Agent, GameClient
+from GameClasses import State, Move, Color
+from Agent import Agent, GameClient
 
 def checkForGameEnd(board_state, colorTurn):
     winner = board_state.getWinner()
