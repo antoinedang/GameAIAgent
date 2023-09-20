@@ -233,11 +233,12 @@ def _variance(x):
     mean = sum(x) / n
     return sum((x - mean) ** 2 for x in x) / n
 
+#USE CACHING INSTEAD??
 def _formsSquare(pieces):
-    min_x = 8
-    max_x = 0
-    min_y = 8
-    max_y = 0
+    min_x = 100
+    max_x = -100
+    min_y = 100
+    max_y = -100
     for piece in pieces:
         x,y = piece
         if x > max_x: max_x = x

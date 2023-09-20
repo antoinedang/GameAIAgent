@@ -2,8 +2,9 @@ from gameClasses import State, Move, Color
 import math
 
 class Agent:
-    def __init__(self, color, maxSearchDepth=6):
+    def __init__(self, color, maxSearchDepth=4):
         self.color = color
+        self.opponent_color = Color.other(color)
         self.maxSearchDepth = maxSearchDepth
         self.opponent_stalemate = 0.01
         self.agent_stalemate = -0.01
@@ -12,6 +13,7 @@ class Agent:
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
         return state.getMoveToState(best_next_state)
     
+    #TODO!
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
         if depth >= self.maxSearchDepth: return state.quality(self.color, depth), None
         winner = state.getWinner()
@@ -19,7 +21,6 @@ class Agent:
         bestChildState = None     
         if isMaxPlayerTurn:
             bestValue = -math.inf
-            bestChildState = None     
             next_states = state.possibleNextStates(self.color)
             if len(next_states) == 0: return self.agent_stalemate, None
             for child_state in next_states:
@@ -27,16 +28,17 @@ class Agent:
                 if bestValue < value:
                     bestValue = value
                     bestChildState = child_state
-                alpha = max(alpha, bestValue)
+                if bestValue > alpha: alpha = bestValue
                 if alpha >= beta: break
         else:
             bestValue = math.inf
-            next_states = state.possibleNextStates(Color.other(self.color))
+            next_states = state.possibleNextStates(self.opponent_color)
             if len(next_states) == 0: return self.opponent_stalemate, None
             for child_state in next_states:
                 value = self.alphaBetaMiniMaxSearch(child_state, depth+1, alpha, beta, True)[0]
-                bestValue = min(bestValue, value)
-                beta = min(alpha, bestValue)
+                if bestValue > value:
+                    bestValue = value
+                if bestValue < beta: beta = bestValue
                 if alpha >= beta: break
         return bestValue, bestChildState
 
