@@ -112,15 +112,20 @@ class State:
             return our_std_avg + opponent_std_avg
 
     def possibleNextStates(self, color): # TODO
-        if color == Color.white: i_offset = 0
-        else: i_offset = self.white_piece_count
-
+        if color == Color.white:
+            movable_pieces = self.pieces[:self.white_piece_count]
+            enemy_pieces = self.pieces[self.white_piece_count:]
+            i_offset = 0
+        else:
+            movable_pieces = self.pieces[self.white_piece_count:]
+            enemy_pieces = self.pieces[:self.white_piece_count]
+            i_offset = self.white_piece_count
+            
         pieces_list = self.getPiecesList()
-        enemy_pieces = pieces_list[i_offset:self.white_piece_count+i_offset]
         
         possible_next_states = []
         for i in range(self.white_piece_count):
-            movable_piece = pieces_list[i+i_offset]
+            movable_piece = movable_pieces[i]
             max_move_dist = 3
             for e in enemy_pieces:
                 dist = sqrt((e[0]-movable_piece[0])**2 + (e[1]-movable_piece[1])**2)
