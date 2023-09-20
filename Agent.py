@@ -1,5 +1,6 @@
 from GameClasses import State, Move, Color
 import math
+import socket
 
 class Agent:
     def __init__(self, color, maxSearchDepth=5):
@@ -45,46 +46,54 @@ class Agent:
         return bestValue, bestChildState
 
 class GameClient:
-    def __init__(self, hostname, port, color, gameID, initialBoardState=State()):
+    def __init__(self, color, gameID, ip="156trlinux-1.ece.mcgill.ca", port=12345, initialBoardState=State()):
         self.board_state = initialBoardState
-        print("Starting gameplay.")
-        agent = Agent(color)
+        print("Starting agent.")
+        self.agent = Agent(color)
         self.board_state.display()
+        self.gameID = gameID
+        self.port = port
+        self.ip = ip
+        self.color = color
+        
+    def start(self):
         #TODO connect to server at hostname:port
-        
-        server.send("game{} {}\n".format(gameID, "white" if color == Color.white else "black"))
-        
-        if color == Color.white: #play first
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect((self.ip, self.port))
+        print("Successfully connected to game server.")
+        server.send("game{} {}\n".format(self.gameID, "white" if self.color == Color.white else "black").encode())
+        print("Registered in game ID {} as the {} player.".format(self.gameID, "white" if self.color == Color.white else "black"))
+        if self.color == Color.white: #play first
             #compute our move and send to server
-            our_move = agent.getNextMove(self.board_state)
-            server.send(str(our_move))
+            our_move = self.agent.getNextMove(self.board_state)
+            server.send(str(our_move).encode())
             
             #update state of the board after the move
             self.board_state.update(our_move)
             self.board_state.display()
-            self.checkForGameEnd()
+            self.checkForGameEnd(Color.other(self.color))
             
         #start game
         while True:
             #receive message from server for opponent move
-            opponent_move = server.receive()
-            if color in opponent_move: continue # ignore messages about our own moves
+            opponent_move = server.recv(1024).decode()
+            if self.color in opponent_move: continue # ignore messages about our own moves
             print("Received " + opponent_move)
             
             #update state of the board after opponent's move
             self.board_state.update(Move(string=opponent_move), check_validity=True)
             self.board_state.display()
-            self.checkForGameEnd(color)
+            self.checkForGameEnd(self.color)
             
             #decide our move and send to server
-            our_move = agent.getNextMove(self.board_state)
-            server.send(str(our_move))
+            our_move = self.agent.getNextMove(self.board_state)
+            server.send(str(our_move).encode())
             print("Sent " + our_move)
             
             #update state of the board after our move
             self.board_state.update(our_move)
             self.board_state.display()
-            self.checkForGameEnd(Color.other(color))
+            self.checkForGameEnd(Color.other(self.color))
         
     def checkForGameEnd(self, colorTurn):
         winner = self.board_state.getWinner()

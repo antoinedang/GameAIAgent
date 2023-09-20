@@ -108,6 +108,7 @@ class State:
         elif winner is not None: return -1 # OPPONENT WIN
         # OTHERWISE NO CLEAR WINNER
         #simple heuristic: distance from the center of the board
+        #good heuristic: closeness of our pieces - closeness of enemy pieces + b*(limited moves enemy - limited moves agent)
         if color == Color.white:
             our_pieces = self.pieces[:self.white_piece_count]
             opponent_pieces = self.pieces[self.white_piece_count:]
