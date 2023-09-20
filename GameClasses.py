@@ -1,4 +1,5 @@
 import numpy as np
+from itertools import combinations
 
 class State:
     def __init__(self, whitePieceCoordinates=[[5,1], [1,3], [1,4], [7,4], [7,5], [3,7]], blackPieceCoordinates=[(2,1), (3,1), (7,2), (1,6), (5,7), (6,7)], ignoreSetup=False):
@@ -81,48 +82,13 @@ class State:
         self.pieces[piece_index] = move.newCoordinates
         
     def getWinner(self): # TODO
-        def isInSquare(piece, pieces_list):
-            up = (piece + directions[2]).tolist() in pieces_list
-            topleft = (piece + directions[0] + directions[2]).tolist() in pieces_list
-            left = (piece + directions[0]).tolist() in pieces_list
-            #check if square goes to top left of piece
-            if up \
-                    and topleft \
-                    and left:
-                return True
-            down = (piece + directions[3]).tolist() in pieces_list
-            bottomleft = (piece + directions[0] + directions[3]).tolist() in pieces_list
-            #check if square goes to bottom left of piece
-            if down \
-                    and bottomleft \
-                    and left:
-                return True
-            right = (piece + directions[1]).tolist() in pieces_list
-            topright = (piece + directions[1] + directions[2]).tolist() in pieces_list
-            #check if square goes to top right of piece
-            if up \
-                    and topright \
-                    and right:
-                return True
-            bottomright = (piece + directions[1] + directions[3]).tolist() in pieces_list
-            #check if square goes to bottom right of piece
-            if down \
-                    and bottomright \
-                    and right:
-                return True
-            
-        white_pieces = self.pieces[:self.white_piece_count]
-        white_pieces_list = white_pieces.tolist()
-        for piece in white_pieces:
-            if isInSquare(piece, white_pieces_list): return Color.white
-
-        black_pieces = self.pieces[self.white_piece_count:]
-        black_pieces_list = black_pieces.tolist()
-        for piece in black_pieces:
-            if isInSquare(piece, black_pieces_list): return Color.black
+        for pieces in combinations(self.pieces[:self.white_piece_count], 4):
+            if _formsSquare(pieces): return Color.white
+        for pieces in combinations(self.pieces[self.white_piece_count:], 4):
+            if _formsSquare(pieces): return Color.black
             
         return None
-    
+        
     def quality(self, color, depth, winner=-1): # TODO
         if winner == -1: winner = self.getWinner()
         if winner == color: return 10/depth # AGENT WIN
@@ -137,49 +103,56 @@ class State:
                 opponent_pieces = self.pieces[:self.white_piece_count]
                 
             #we can approximate this by getting the standard deviation of the x and y coordinates of our pieces
-            our_std_avg = 1 - (np.var(our_pieces[:,0]) + np.var(our_pieces[:,1])) / (2*7)
-            opponent_std_avg = -1 * (1 - (np.var(opponent_pieces[:,0]) + np.var(opponent_pieces[:,1])) / (2*7))
+            our_std_avg = 1 - (_variance(our_pieces[:,0]) + _variance(our_pieces[:,1])) / (2*7)
+            opponent_std_avg = -1 * (1 - (_variance(opponent_pieces[:,0]) + _variance(opponent_pieces[:,1])) / (2*7))
             return our_std_avg + opponent_std_avg
 
     def possibleNextStates(self, color): # TODO
         if color == Color.white:
             movable_pieces = self.pieces[:self.white_piece_count]
             enemy_pieces = self.pieces[self.white_piece_count:]
+            i_offset = 0
         else:
             movable_pieces = self.pieces[self.white_piece_count:]
             enemy_pieces = self.pieces[:self.white_piece_count]
+            i_offset = self.white_piece_count
             
         pieces_list = self.pieces.tolist()
         
         possible_next_states = []
-        for i in range(len(movable_pieces)):
+        for i in range(self.white_piece_count):
             movable_piece = movable_pieces[i]
             distances_to_enemy_pieces = np.linalg.norm(enemy_pieces - movable_piece, axis=1)
-            max_move_dist = max(3 - np.count_nonzero(distances_to_enemy_pieces < 2), 0)
+            max_move_dist = 3
+            for d in distances_to_enemy_pieces:
+                if d < 2:
+                    max_move_dist -= 1
+                    if max_move_dist == 0: break
             if max_move_dist == 0: continue
-            move_obj.oldCoordinates = movable_piece
             for direction in directions:
-                pieceCoordinatesAfterMove = np.array(movable_piece, order='K', copy=True)
+                pieceCoordinatesAfterMove = [movable_piece[0], movable_piece[1]]
                 for _ in range(max_move_dist):
-                    pieceCoordinatesAfterMove += direction
+                    pieceCoordinatesAfterMove[0] += direction[0]
+                    pieceCoordinatesAfterMove[1] += direction[1]
                     if pieceCoordinatesAfterMove[0] < 1 or pieceCoordinatesAfterMove[1] < 1 \
                         or pieceCoordinatesAfterMove[0] > 7 or pieceCoordinatesAfterMove[1] > 7 \
-                            or pieceCoordinatesAfterMove.tolist() in pieces_list: break
+                            or pieceCoordinatesAfterMove in pieces_list: break
                     
                     possible_state = State(ignoreSetup=True)
                     possible_state.pieces = np.array(self.pieces, order='K', copy=True)
+                    possible_state.pieces[i+i_offset][0] = pieceCoordinatesAfterMove[0]
+                    possible_state.pieces[i+i_offset][1] = pieceCoordinatesAfterMove[1]
                     possible_state.white_piece_count = self.white_piece_count
-                    move_obj.newCoordinates = pieceCoordinatesAfterMove
-                    possible_state.update(move_obj)
                     
                     possible_next_states.append(possible_state)
         
         return possible_next_states
     
     def getPieceIndexByCoordinates(self,x,y):
-        for i in range(len(self.pieces)):
-            if self.pieces[i][0] == x and self.pieces[i][1] == y: return i
-        return -1
+        try:
+            return self.pieces.tolist().index([x,y])
+        except ValueError:
+            return -1
     
     def getMoveToState(self, state):
         for i in range(len(self.pieces)):
@@ -252,7 +225,27 @@ class Color:
     def other(color):
         if color == "W": return "B"
         else: return "W"
-        
+
+
+def _variance(x):
+    n = len(x)
+    mean = sum(x) / n
+    return sum((x - mean) ** 2 for x in x) / n
+
+def _formsSquare(pieces):
+    min_x = 8
+    max_x = 0
+    min_y = 8
+    max_y = 0
+    for piece in pieces:
+        x,y = piece
+        if x > max_x: max_x = x
+        if x < min_x: min_x = x
+        if y > max_y: max_y = y
+        if y < min_y: min_y = y
+    
+    return (max_x - min_x) == 1 and (max_y - min_y) == 1
+
 #global variables for performance: no need to instantiate these every time since they are constant
 directions = [np.array([-1,0]), np.array([1,0]), np.array([0,-1]), np.array([0,1])]
 move_obj = Move(oldCoordinates=[0,0], newCoordinates=[0,0])
