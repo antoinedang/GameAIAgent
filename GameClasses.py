@@ -96,8 +96,10 @@ class State:
         
     def quality(self, color, depth, winner=-1): # TODO
         if winner == -1: winner = self.getWinner()
-        if winner == color: return 10/depth # AGENT WIN
-        elif winner is not None: return -10/depth # OPPONENT WIN
+        # if winner == color: return 10/depth # AGENT WIN
+        # elif winner is not None: return -10/depth # OPPONENT WIN
+        if winner == color: return 1 # AGENT WIN
+        elif winner is not None: return -1 # OPPONENT WIN
         else: #NO CLEAR WINNER
             #simple heuristic: approx. distance between agent pieces minus approx. distance between opponent pieces
             if color == Color.white:
@@ -235,7 +237,6 @@ class Color:
     def other(color):
         if color == "W": return "B"
         else: return "W"
-
 
 def _variance(x):
     n = len(x)

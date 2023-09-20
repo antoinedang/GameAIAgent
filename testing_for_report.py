@@ -13,30 +13,22 @@ def checkForGameEnd(board_state, colorTurn):
         print("Stalemate! (" + ("White" if colorTurn == Color.white else "Black") + " cannot move)")
         
 
-board_state = State()
-board_state.display()
 
-white_player = Agent(Color.white)
-black_player = Agent(Color.black)
 
-# for i in range(10000):
-#     board_state.possibleNextStates(Color.black)
-#     board_state.possibleNextStates(Color.white)
-# for i in range(1):
-#     white_move = white_player.getNextMove(board_state)
-#     print("White plays " + str(white_move))
-# board_state.display()
-# board_state.update(white_move)
-# checkForGameEnd(board_state, Color.black)
-
-for i in range(5):
+for depth in [3,4,5]:
+    white_player = Agent(Color.white)
+    
+    board_state = State(whitePieceCoordinates=[(2,1), (6,2), (1,4), (7,6), (1,7), (2,7)], blackPieceCoordinates=[(5,1), (6,1), (7,1), (5,2), (7,2), (7,7)])
+    board_state.display()
     white_move = white_player.getNextMove(board_state)
     print("White plays " + str(white_move))
-    board_state.update(white_move, check_validity=True)
-    checkForGameEnd(board_state, Color.black)
+
+    board_state = State(whitePieceCoordinates=[(7,1), (7,4), (2,6), (7,6), (3,7), (4,7)], blackPieceCoordinates=[(7,2), (6,3), (7,3), (7,5), (1,7), (2,7)])
     board_state.display()
-    black_move = black_player.getNextMove(board_state)
-    print("Black plays " + str(black_move))
-    board_state.update(black_move, check_validity=True)
-    checkForGameEnd(board_state, Color.white)
+    white_move = white_player.getNextMove(board_state)
+    print("White plays " + str(white_move))
+
+    board_state = State(whitePieceCoordinates=[(6,1), (7,1), (5,2), (6,4), (7,6), (7,7)], blackPieceCoordinates=[(6,2), (7,2), (2,6), (6,6), (2,7), (3,7)])
     board_state.display()
+    white_move = white_player.getNextMove(board_state)
+    print("White plays " + str(white_move))

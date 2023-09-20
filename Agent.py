@@ -11,6 +11,9 @@ class Agent:
         
     def getNextMove(self, state):
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
+        if best_next_state is None:
+            print("No moves available. Forfeiting.")
+            exit()
         return state.getMoveToState(best_next_state)
     
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
