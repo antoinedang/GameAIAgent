@@ -16,17 +16,17 @@ class State:
     def display(self):
         print("  x 1 2 3 4 5 6 7 ")
         print("y")
-        for column in range(7):
-            print(str(column+1) + "   ", end='')
-            for row in range(7):
-                piece_index = self.getPieceIndexByCoordinates(row+1, column+1)
+        for row in range(7):
+            print(str(row+1) + "   ", end='')
+            for column in range(7):
+                piece_index = self.getPieceIndexByCoordinates(column+1, row+1)
                 if piece_index == -1:
-                    print(" ,", end='')
-                    continue
-                if piece_index < self.white_piece_count:
-                    print("O,", end='')
+                    print(" ", end='')
+                elif piece_index < self.white_piece_count:
+                    print("O", end='')
                 else:
-                    print("X,", end='')
+                    print("X", end='')
+                if column+1 != 7: print(',', end='')
             print("")
         print("")
         
@@ -59,7 +59,7 @@ class State:
         
         return True
     
-    def numFreeSquaresInDirection(self, start_coordinates, step_amt): # TODO?
+    def numFreeSquaresInDirection(self, start_coordinates, step_amt):
         i = start_coordinates + step_amt
         pieces_list = self.getPiecesList()
         num_steps = 0
@@ -72,11 +72,17 @@ class State:
                 
     def numSquaresMovable(self, piece_index):
         if piece_index < self.white_piece_count:
-            distances_to_other_pieces = np.linalg.norm(self.pieces[self.white_piece_count:] - self.pieces[piece_index], axis=1)
+            enemy_pieces = self.pieces[self.white_piece_count:]
         else:
-            distances_to_other_pieces = np.linalg.norm(self.pieces[:self.white_piece_count] - self.pieces[piece_index], axis=1)
-        close_pieces = distances_to_other_pieces < 2
-        return max(3 - np.count_nonzero(close_pieces), 0)
+            enemy_pieces = self.pieces[:self.white_piece_count]
+        
+        max_move_dist = 3
+        for e in enemy_pieces:
+            dist = sqrt((e[0]-self.pieces[piece_index][0])**2 + (e[1]-self.pieces[piece_index][1])**2)
+            if dist < 2:
+                max_move_dist -= 1
+                if max_move_dist == 0: break
+        return max_move_dist
     
     def update(self, move, check_validity=False):
         if check_validity and not self.isValidMove(move):
@@ -100,20 +106,17 @@ class State:
         # elif winner is not None: return -10/depth # OPPONENT WIN
         if winner == color: return 1 # AGENT WIN
         elif winner is not None: return -1 # OPPONENT WIN
-        else: #NO CLEAR WINNER
-            #simple heuristic: approx. distance between agent pieces minus approx. distance between opponent pieces
-            if color == Color.white:
-                our_pieces = self.pieces[:self.white_piece_count]
-                opponent_pieces = self.pieces[self.white_piece_count:]
-            else:
-                our_pieces = self.pieces[self.white_piece_count:]
-                opponent_pieces = self.pieces[:self.white_piece_count]
-                
-            #we can approximate this by getting the variances of the x and y coordinates of our pieces vs. the enemy pieces
-            our_std_avg = 1 - (_variance(our_pieces[:,0]) + _variance(our_pieces[:,1])) / (2*7)
-            opponent_std_avg = -1 * (1 - (_variance(opponent_pieces[:,0]) + _variance(opponent_pieces[:,1])) / (2*7))
-            return our_std_avg + opponent_std_avg
-
+        # OTHERWISE NO CLEAR WINNER
+        #simple heuristic: distance from the center of the board
+        if color == Color.white:
+            our_pieces = self.pieces[:self.white_piece_count]
+            opponent_pieces = self.pieces[self.white_piece_count:]
+        else:
+            our_pieces = self.pieces[self.white_piece_count:]
+            opponent_pieces = self.pieces[:self.white_piece_count]
+            
+        return np.mean(opponent_pieces-4) - np.mean(our_pieces - 4)
+    
     def possibleNextStates(self, color): # TODO
         if color == Color.white:
             movable_pieces = self.pieces[:self.white_piece_count]
@@ -238,17 +241,8 @@ class Color:
         if color == "W": return "B"
         else: return "W"
 
-def _variance(x):
-    n = len(x)
-    mean = sum(x) / n
-    var = 0
-    for x_i in x:
-        var += (x_i - mean) ** 2
-    return var / n
-
 with open('is_square_map.pickle', 'rb') as file:
     is_square_map = pickle.load(file)
 
 #global variables for performance: no need to instantiate these every time since they are constant
 directions = [np.array([-1,0]), np.array([1,0]), np.array([0,-1]), np.array([0,1])]
-move_obj = Move(oldCoordinates=[0,0], newCoordinates=[0,0])
