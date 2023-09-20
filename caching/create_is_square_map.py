@@ -1,5 +1,5 @@
 import pickle
-from itertools import combinations
+from itertools import combinations, permutations
 
 #USE CACHING INSTEAD??
 def _formsSquare(pieces):
@@ -24,7 +24,11 @@ for x in range(8):
         coordinate_options.append((x+1, y+1))
         
 for piece_combination in combinations(coordinate_options, 4):
-    is_square_map[frozenset(piece_combination)] = _formsSquare(piece_combination)
+    isWin = _formsSquare(piece_combination)
+    for ordered_piece_combination in permutations(piece_combination):
+        # print(ordered_piece_combination)
+        # print(frozenset(ordered_piece_combination))
+        is_square_map[frozenset(ordered_piece_combination)] = isWin
 
 with open("is_square_map.pickle", "wb") as file:
     pickle.dump(is_square_map, file)

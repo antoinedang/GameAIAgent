@@ -1,4 +1,4 @@
-from GameClasses import State, Move, Color
+from utils.GameClasses import State, Move, Color
 import math
 import socket
 

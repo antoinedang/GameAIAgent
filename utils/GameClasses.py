@@ -11,7 +11,8 @@ class State:
         np_black_pieces = np.array(blackPieceCoordinates).reshape(-1,2)
         self.pieces = np.vstack((np_white_pieces, np_black_pieces)) 
         self.white_piece_count = int(len(self.pieces)/2)
-        self.index_combinations = combinations(range(self.white_piece_count), 4)
+        global index_combinations
+        index_combinations = list(combinations(range(self.white_piece_count), 4))
         
     def display(self):
         print("  x 1 2 3 4 5 6 7 ")
@@ -94,9 +95,9 @@ class State:
         
     def getWinner(self): # TODO
         pieces_list = [tuple(piece) for piece in self.getPiecesList()]
-        for i_combo in self.index_combinations:
-            if is_square_map[frozenset([pieces_list[i] for i in i_combo])]: return Color.white
-            if is_square_map[frozenset([pieces_list[i+self.white_piece_count] for i in i_combo])]: return Color.black
+        for i_combo in index_combinations:
+            if is_square_map[frozenset(tuple([pieces_list[i] for i in i_combo]))]: return Color.white
+            if is_square_map[frozenset(tuple([pieces_list[i+self.white_piece_count] for i in i_combo]))]: return Color.black
             
         return None
         
@@ -154,7 +155,6 @@ class State:
                     possible_state.pieces[i+i_offset][0] = pieceCoordinatesAfterMove[0]
                     possible_state.pieces[i+i_offset][1] = pieceCoordinatesAfterMove[1]
                     possible_state.white_piece_count = self.white_piece_count
-                    possible_state.index_combinations = self.index_combinations
                     
                     possible_next_states.append(possible_state)
         
@@ -242,8 +242,9 @@ class Color:
         if color == "W": return "B"
         else: return "W"
 
-with open('is_square_map.pickle', 'rb') as file:
+with open('caching/is_square_map.pickle', 'rb') as file:
     is_square_map = pickle.load(file)
 
 #global variables for performance: no need to instantiate these every time since they are constant
 directions = [np.array([-1,0]), np.array([1,0]), np.array([0,-1]), np.array([0,1])]
+index_combinations = list(combinations(range(6), 4))
