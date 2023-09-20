@@ -1,5 +1,6 @@
 import numpy as np
 from itertools import combinations
+from math import sqrt
 
 class State:
     def __init__(self, whitePieceCoordinates=[[5,1], [1,3], [1,4], [7,4], [7,5], [3,7]], blackPieceCoordinates=[(2,1), (3,1), (7,2), (1,6), (5,7), (6,7)], ignoreSetup=False):
@@ -122,10 +123,10 @@ class State:
         possible_next_states = []
         for i in range(self.white_piece_count):
             movable_piece = movable_pieces[i]
-            distances_to_enemy_pieces = np.linalg.norm(enemy_pieces - movable_piece, axis=1)
             max_move_dist = 3
-            for d in distances_to_enemy_pieces:
-                if d < 2:
+            for e in enemy_pieces:
+                dist = sqrt((e[0]-movable_piece[0])**2 + (e[1]-movable_piece[1])**2)
+                if dist < 2:
                     max_move_dist -= 1
                     if max_move_dist == 0: break
             if max_move_dist == 0: continue
