@@ -1,9 +1,11 @@
 import numpy as np
 from itertools import combinations
 from math import sqrt
+import pickle
 
 class State:
     def __init__(self, whitePieceCoordinates=[[5,1], [1,3], [1,4], [7,4], [7,5], [3,7]], blackPieceCoordinates=[(2,1), (3,1), (7,2), (1,6), (5,7), (6,7)], ignoreSetup=False):
+        self.pieces_list = []
         if ignoreSetup: return
         np_white_pieces = np.array(whitePieceCoordinates).reshape(-1,2)
         np_black_pieces = np.array(blackPieceCoordinates).reshape(-1,2)
@@ -58,7 +60,7 @@ class State:
     
     def numFreeSquaresInDirection(self, start_coordinates, step_amt): # TODO?
         i = start_coordinates + step_amt
-        pieces_list = self.pieces.tolist()
+        pieces_list = self.getPiecesList()
         num_steps = 0
         while True:
             if i[0] < 1 or i[1] < 1 or i[0] > 7 or i[1] > 7 or num_steps >= 3 or i.tolist() in pieces_list:
@@ -83,10 +85,11 @@ class State:
         self.pieces[piece_index] = move.newCoordinates
         
     def getWinner(self): # TODO
-        for pieces in combinations(self.pieces[:self.white_piece_count], 4):
-            if _formsSquare(pieces): return Color.white
-        for pieces in combinations(self.pieces[self.white_piece_count:], 4):
-            if _formsSquare(pieces): return Color.black
+        pieces_list = [tuple(piece) for piece in self.getPiecesList()]
+        for pieces in combinations(pieces_list[:self.white_piece_count], 4):
+            if is_square_map[frozenset(pieces)]: return Color.white
+        for pieces in combinations(pieces_list[self.white_piece_count:], 4):
+            if is_square_map[frozenset(pieces)]: return Color.black
             
         return None
         
@@ -118,7 +121,7 @@ class State:
             enemy_pieces = self.pieces[:self.white_piece_count]
             i_offset = self.white_piece_count
             
-        pieces_list = self.pieces.tolist()
+        pieces_list = self.getPiecesList()
         
         possible_next_states = []
         for i in range(self.white_piece_count):
@@ -151,7 +154,7 @@ class State:
     
     def getPieceIndexByCoordinates(self,x,y):
         try:
-            return self.pieces.tolist().index([x,y])
+            return self.getPiecesList().index([x,y])
         except ValueError:
             return -1
     
@@ -162,6 +165,10 @@ class State:
                 break
         return Move(oldCoordinates=self.pieces[changed_piece_idx], newCoordinates=state.pieces[changed_piece_idx])        
 
+    def getPiecesList(self):
+        if len(self.pieces_list) == 0:
+            self.pieces_list = self.pieces.tolist()
+        return self.pieces_list
 
 class Move:
     def __init__(self, oldCoordinates=None, newCoordinates=None, string=None):
@@ -233,20 +240,8 @@ def _variance(x):
     mean = sum(x) / n
     return sum((x - mean) ** 2 for x in x) / n
 
-#USE CACHING INSTEAD??
-def _formsSquare(pieces):
-    min_x = 100
-    max_x = -100
-    min_y = 100
-    max_y = -100
-    for piece in pieces:
-        x,y = piece
-        if x > max_x: max_x = x
-        if x < min_x: min_x = x
-        if y > max_y: max_y = y
-        if y < min_y: min_y = y
-    
-    return (max_x - min_x) == 1 and (max_y - min_y) == 1
+with open('is_square_map.pickle', 'rb') as file:
+    is_square_map = pickle.load(file)
 
 #global variables for performance: no need to instantiate these every time since they are constant
 directions = [np.array([-1,0]), np.array([1,0]), np.array([0,-1]), np.array([0,1])]

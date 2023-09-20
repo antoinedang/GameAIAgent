@@ -2,7 +2,7 @@ from gameClasses import State, Move, Color
 import math
 
 class Agent:
-    def __init__(self, color, maxSearchDepth=4):
+    def __init__(self, color, maxSearchDepth=5):
         self.color = color
         self.opponent_color = Color.other(color)
         self.maxSearchDepth = maxSearchDepth
@@ -13,7 +13,6 @@ class Agent:
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
         return state.getMoveToState(best_next_state)
     
-    #TODO!
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
         if depth >= self.maxSearchDepth: return state.quality(self.color, depth), None
         winner = state.getWinner()

@@ -22,9 +22,10 @@ black_player = Agent(Color.black)
 # for i in range(10000):
 #     board_state.possibleNextStates(Color.black)
 #     board_state.possibleNextStates(Color.white)
-
-white_move = white_player.getNextMove(board_state)
-print("White plays " + str(white_move))
+for i in range(1):
+    white_move = white_player.getNextMove(board_state)
+    print("White plays " + str(white_move))
+board_state.display()
 # board_state.update(white_move)
 # checkForGameEnd(board_state, Color.black)
 
