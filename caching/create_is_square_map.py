@@ -28,7 +28,7 @@ for piece_combination in combinations(coordinate_options, 4):
     for ordered_piece_combination in permutations(piece_combination):
         # print(ordered_piece_combination)
         # print(frozenset(ordered_piece_combination))
-        is_square_map[frozenset(ordered_piece_combination)] = isWin
+        is_square_map[frozenset(piece_combination)] = isWin
 
 with open("is_square_map.pickle", "wb") as file:
     pickle.dump(is_square_map, file)

@@ -43,7 +43,7 @@ class Agent:
                     bestValue = value
                 if bestValue < beta: beta = bestValue
                 if alpha >= beta: break
-        return bestValue, bestChildState
+        return bestValue, (bestChildState if depth == 0 else None)
 
 class GameClient:
     def __init__(self, color, gameID, ip="156trlinux-1.ece.mcgill.ca", port=12345, initialBoardState=State()):

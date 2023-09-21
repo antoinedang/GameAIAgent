@@ -79,8 +79,8 @@ class State:
         
         max_move_dist = 3
         for e in enemy_pieces:
-            dist = sqrt((e[0]-self.pieces[piece_index][0])**2 + (e[1]-self.pieces[piece_index][1])**2)
-            if dist < 2:
+            close = abs(e[0]-self.pieces[piece_index][0]) <= 1 and abs(e[1]-self.pieces[piece_index][1]) <= 1
+            if close:
                 max_move_dist -= 1
                 if max_move_dist == 0: break
         return max_move_dist
@@ -93,11 +93,11 @@ class State:
         self.pieces[piece_index] = move.newCoordinates
         self.pieces_list = self.pieces.tolist()
         
-    def getWinner(self): # TODO
+    def getWinner(self):
         pieces_list = [tuple(piece) for piece in self.getPiecesList()]
         for i_combo in index_combinations:
-            if is_square_map[frozenset(tuple([pieces_list[i] for i in i_combo]))]: return Color.white
-            if is_square_map[frozenset(tuple([pieces_list[i+self.white_piece_count] for i in i_combo]))]: return Color.black
+            if is_square_map[frozenset([pieces_list[i] for i in i_combo])]: return Color.white
+            if is_square_map[frozenset([pieces_list[i+self.white_piece_count] for i in i_combo])]: return Color.black
             
         return None
         
@@ -105,8 +105,8 @@ class State:
         if winner == -1: winner = self.getWinner()
         # if winner == color: return 10/depth # AGENT WIN
         # elif winner is not None: return -10/depth # OPPONENT WIN
-        if winner == color: return 1 # AGENT WIN
-        elif winner is not None: return -1 # OPPONENT WIN
+        if winner == color: return 10000 # AGENT WIN
+        elif winner is not None: return -10000 # OPPONENT WIN
         # OTHERWISE NO CLEAR WINNER
         #simple heuristic: distance from the center of the board
         #good heuristic: closeness of our pieces - closeness of enemy pieces + b*(limited moves enemy - limited moves agent)
@@ -117,7 +117,7 @@ class State:
             our_pieces = self.pieces[self.white_piece_count:]
             opponent_pieces = self.pieces[:self.white_piece_count]
             
-        return np.mean(opponent_pieces-4) - np.mean(our_pieces - 4)
+        return np.sum(np.abs((opponent_pieces-4))) - np.sum(np.abs(our_pieces - 4))
     
     def possibleNextStates(self, color): # TODO
         if color == Color.white:
@@ -136,8 +136,8 @@ class State:
             movable_piece = movable_pieces[i]
             max_move_dist = 3
             for e in enemy_pieces:
-                dist = sqrt((e[0]-movable_piece[0])**2 + (e[1]-movable_piece[1])**2)
-                if dist < 2:
+                close = abs(e[0]-movable_piece[0]) <= 1 and abs(e[1]-movable_piece[1]) <= 1
+                if close:
                     max_move_dist -= 1
                     if max_move_dist == 0: break
             if max_move_dist == 0: continue
@@ -248,3 +248,5 @@ with open('caching/is_square_map.pickle', 'rb') as file:
 #global variables for performance: no need to instantiate these every time since they are constant
 directions = [np.array([-1,0]), np.array([1,0]), np.array([0,-1]), np.array([0,1])]
 index_combinations = list(combinations(range(6), 4))
+
+test_list = [9]*1000

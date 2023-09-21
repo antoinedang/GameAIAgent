@@ -13,12 +13,12 @@ def checkForGameEnd(board_state, colorTurn):
         print("Stalemate! (" + ("White" if colorTurn == Color.white else "Black") + " cannot move)")
         
 
-board_state = State(whitePieceCoordinates=[(2,7), (3,6), (2,5), (3,4)], blackPieceCoordinates=[(3,1), (3,2), (2,2), (2,1)])
+board_state = State()
 board_state.display()
-board_state.update(Move(string="34N1\n"))
-board_state.display()
-print(board_state.getWinner())
-exit()
+# board_state.update(Move(string="34N1\n"))
+# board_state.display()
+# print(board_state.getWinner())
+# exit()
 white_player = Agent(Color.white)
 black_player = Agent(Color.black)
 
