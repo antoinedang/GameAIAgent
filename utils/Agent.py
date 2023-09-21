@@ -1,14 +1,17 @@
 from utils.GameClasses import State, Move, Color
 import math
 import socket
+import random
 
 class Agent:
-    def __init__(self, color, maxSearchDepth=5):
+    def __init__(self, color, maxSearchDepth=4, fractionalDepth=0.5):
         self.color = color
         self.opponent_color = Color.other(color)
         self.maxSearchDepth = maxSearchDepth
         self.opponent_stalemate = 0.01
         self.agent_stalemate = -0.01
+        self.fractionalDepth = fractionalDepth
+        self.hardDepthCutoff = maxSearchDepth + 1
         
     def getNextMove(self, state):
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
@@ -18,7 +21,7 @@ class Agent:
         return state.getMoveToState(best_next_state)
     
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
-        if depth >= self.maxSearchDepth: return state.quality(self.color, depth), None
+        if depth >= self.maxSearchDepth and (depth >= self.hardDepthCutoff or random.random() > self.fractionalDepth): return state.quality(self.color, depth), None
         winner = state.getWinner()
         if winner is not None: return state.quality(self.color, depth, winner=winner), None
         bestChildState = None     
