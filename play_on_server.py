@@ -1,9 +1,8 @@
-from utils.GameClasses import Color
 from utils.Agent import GameClient
 try:
     while True:
-        color_selection = input("Enter the color you wish to play: (1) White (2) Black     ")
-        if color_selection not in ["1","2"]:
+        color_selection = input("Enter the color you wish to play: (0) White (1) Black     ")
+        if color_selection not in ["1","0"]:
             print("Not a valid selection.")
             continue
         break
@@ -16,10 +15,7 @@ try:
             print("Not a valid gameID.")
             continue
 
-    if color_selection == 1: color = Color.white
-    else: color = Color.black
-
-    agent = GameClient(color=color, gameID=gameID)
+    agent = GameClient(color=int(color_selection), gameID=gameID)
 
     agent.start()
 except KeyboardInterrupt:

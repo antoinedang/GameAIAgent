@@ -1,4 +1,4 @@
-from utils.GameClasses import State, Move, Color
+from utils.GameClasses import State, Move
 from utils.Agent import Agent, GameClient
 
 def checkForGameEnd(board_state, colorTurn):
@@ -14,7 +14,7 @@ def checkForGameEnd(board_state, colorTurn):
 
 
 for depth in [3,4,5]:
-    white_player = Agent(Color.white)
+    white_player = Agent(0)
     
     board_state = State(whitePieceCoordinates=[(2,1), (6,2), (1,4), (7,6), (1,7), (2,7)], blackPieceCoordinates=[(5,1), (6,1), (7,1), (5,2), (7,2), (7,7)])
     board_state.display()

@@ -1,21 +1,22 @@
 import numpy as np
 from itertools import combinations
-from math import sqrt
 import pickle
 
 class State:
     def __init__(self, whitePieceCoordinates=[[5,1], [1,3], [1,4], [7,4], [7,5], [3,7]], blackPieceCoordinates=[(2,1), (3,1), (7,2), (1,6), (5,7), (6,7)], ignoreSetup=False):
-        self.pieces_list = []
         if ignoreSetup: return
         np_white_pieces = np.array(whitePieceCoordinates).reshape(-1,2)
         np_black_pieces = np.array(blackPieceCoordinates).reshape(-1,2)
-        self.pieces = np.vstack((np_white_pieces, np_black_pieces)) 
+        self.pieces = np.vstack((np_white_pieces, np_black_pieces)).tolist()
         global index_combinations
         global indices_to_check
         global white_piece_count
         white_piece_count = int(len(self.pieces)/2)
         indices_to_check = range(white_piece_count)
-        index_combinations = list(combinations(range(white_piece_count), 4))
+        index_combinations_temp = list(combinations(range(white_piece_count), 4))
+        index_combinations = []
+        for i_combo in index_combinations_temp:
+            index_combinations.append((i_combo, [i + white_piece_count for i in i_combo]))
         
     def display(self):
         print("  x 1 2 3 4 5 6 7 ")
@@ -64,14 +65,14 @@ class State:
         return True
     
     def numFreeSquaresInDirection(self, start_coordinates, step_amt):
-        i = start_coordinates + step_amt
-        pieces_list = self.getPiecesList()
+        i = [start_coordinates[0] + step_amt[0], start_coordinates[1] + step_amt[1]]
         num_steps = 0
         while True:
-            if i[0] < 1 or i[1] < 1 or i[0] > 7 or i[1] > 7 or num_steps >= 3 or i.tolist() in pieces_list:
+            if i[0] < 1 or i[1] < 1 or i[0] > 7 or i[1] > 7 or num_steps >= 3 or i in self.pieces:
                 return num_steps
             else:
-                i += step_amt
+                i[0] += step_amt[0]
+                i[1] += step_amt[1]
                 num_steps += 1
                 
     def numSquaresMovable(self, piece_index):
@@ -82,7 +83,7 @@ class State:
         
         max_move_dist = 3
         for e in enemy_pieces:
-            close = abs(e[0]-self.pieces[piece_index][0]) <= 1 and abs(e[1]-self.pieces[piece_index][1]) <= 1
+            close = (e[0]-self.pieces[piece_index][0])**2 <= 1 and (e[1]-self.pieces[piece_index][1])**2 <= 1
             if close:
                 max_move_dist -= 1
                 if max_move_dist == 0: break
@@ -94,13 +95,15 @@ class State:
             exit()
         piece_index = self.getPieceIndexByCoordinates(move.oldCoordinates[0],move.oldCoordinates[1])
         self.pieces[piece_index] = move.newCoordinates
-        self.pieces_list = self.pieces.tolist()
         
     def getWinner(self):
-        pieces_list = [tuple(piece) for piece in self.getPiecesList()]
-        for i_combo in index_combinations:
-            if is_square_map[frozenset([pieces_list[i] for i in i_combo])]: return Color.white
-            if is_square_map[frozenset([pieces_list[i+white_piece_count] for i in i_combo])]: return Color.black
+        p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12 = self.pieces
+        pieces_list = [tuple(p1),tuple(p2),tuple(p3),tuple(p4),tuple(p5),tuple(p6),tuple(p7),tuple(p8),tuple(p9),tuple(p10),tuple(p11),tuple(p12)]
+        for white_combo, black_combo in index_combinations:
+            wa,wb,wc,wd = white_combo
+            if is_square_map[frozenset([pieces_list[wa], pieces_list[wb], pieces_list[wc], pieces_list[wd]])]: return 0
+            ba,bb,bc,bd = black_combo
+            if is_square_map[frozenset([pieces_list[ba], pieces_list[bb], pieces_list[bc], pieces_list[bd]])]: return 1
             
         return None
         
@@ -112,14 +115,17 @@ class State:
         elif winner is not None: return -1 # OPPONENT WIN
         # OTHERWISE NO CLEAR WINNER
         #simple heuristic: distance from the center of the board
-        if color == Color.white:
-            our_pieces = self.pieces[:white_piece_count]
-            opponent_pieces = self.pieces[white_piece_count:]
-        else:
-            our_pieces = self.pieces[white_piece_count:]
-            opponent_pieces = self.pieces[:white_piece_count]
-            
-        return np.sum(np.abs((opponent_pieces-4)) - np.abs(our_pieces - 4)) / 18
+        opponent_color = color ^ 1
+        our_pieces = self.pieces[color*white_piece_count:white_piece_count + color*white_piece_count]
+        opponent_pieces = self.pieces[opponent_color*white_piece_count:white_piece_count + opponent_color*white_piece_count]
+        
+        score = 0
+        
+        for i in indices_to_check: 
+            score += (opponent_pieces[i][0]-4)**2 + (opponent_pieces[i][1]-4)**2
+            score -= (our_pieces[i][0]-4)**2 + (our_pieces[i][1]-4)**2
+        
+        return score / (18*6)
         
     def quality(self, color, depth, winner=-1):
         if winner == -1: winner = self.getWinner()
@@ -130,62 +136,67 @@ class State:
         # OTHERWISE NO CLEAR WINNER
         #good heuristic: distance between pieces and 
         
-        pieces_list = self.getPiecesList()
+        i_offset = color*white_piece_count
+        opp_i_offset = white_piece_count - i_offset
         
-        if color == Color.white:
-            our_pieces = pieces_list[:white_piece_count]
-            opponent_pieces = pieces_list
-        else:
-            our_pieces = pieces_list
-            opponent_pieces = pieces_list[:white_piece_count]
-
         score = 0
-        
         for i in indices_to_check:
+            our_piece_i_x, our_piece_i_y = self.pieces[i+i_offset]
+            opponent_piece_i = self.pieces[i+opp_i_offset]
+            
             for j in indices_to_check:
-                distance_between_agent_and_enemy = abs(our_pieces[i][0]-opponent_pieces[j][0]) + abs(our_pieces[i][1]-opponent_pieces[j][1])
-                score += (1/white_piece_count)*distance_between_agent_and_enemy
-
+                opponent_piece_j_x, opponent_piece_j_y = self.pieces[j+opp_i_offset]
+                
+                distance_between_agent_and_enemy = (our_piece_i_x-opponent_piece_j_x)**2 + (our_piece_i_y-opponent_piece_j_y)**2
+                score += 0.01*distance_between_agent_and_enemy
                 if j <= i: continue
-                agent_distance_to_self = abs(our_pieces[i][0]-our_pieces[j][0]) + abs(our_pieces[i][1]-our_pieces[j][1])
-                enemy_distance_to_self = abs(opponent_pieces[i][0]-opponent_pieces[j][0]) + abs(opponent_pieces[i][1]-opponent_pieces[j][1])
+                our_piece_j = self.pieces[j+i_offset]
+                agent_distance_to_self = (our_piece_i_x-our_piece_j[0])**2 + (our_piece_i_y-our_piece_j[1])**2
+                enemy_distance_to_self = (opponent_piece_i[0]-opponent_piece_j_x)**2 + (opponent_piece_i[1]-opponent_piece_j_y)**2
                 score += (enemy_distance_to_self - 2*agent_distance_to_self)
 
         return score
     
     def possibleNextStates(self, color):
-        if color == Color.white:
-            movable_pieces = self.pieces[:white_piece_count]
-            enemy_pieces = self.pieces[white_piece_count:]
-            i_offset = 0
-        else:
-            movable_pieces = self.pieces[white_piece_count:]
-            enemy_pieces = self.pieces[:white_piece_count]
-            i_offset = white_piece_count
-            
-        pieces_list = self.getPiecesList()
+        i_offset = color*white_piece_count
+        opp_i_offset = white_piece_count - i_offset
+        
+        p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12 = self.pieces
         
         possible_next_states = []
-        for i in range(white_piece_count):
-            movable_piece = movable_pieces[i]
+        for i in indices_to_check:
+            movable_piece = self.pieces[i+i_offset]
             max_move_dist = 3
-            for e in enemy_pieces:
-                close = abs(e[0]-movable_piece[0]) <= 1 and abs(e[1]-movable_piece[1]) <= 1
+            for e_i in indices_to_check:
+                e = self.pieces[e_i+opp_i_offset]
+                close = (e[0]-movable_piece[0])**2 <= 1 and (e[1]-movable_piece[1])**2 <= 1
                 if close:
                     max_move_dist -= 1
                     if max_move_dist == 0: break
             if max_move_dist == 0: continue
+            move_options = range(max_move_dist)
             for direction in directions:
                 pieceCoordinatesAfterMove = [movable_piece[0], movable_piece[1]]
-                for _ in range(max_move_dist):
+                for _ in move_options:
                     pieceCoordinatesAfterMove[0] += direction[0]
                     pieceCoordinatesAfterMove[1] += direction[1]
                     if pieceCoordinatesAfterMove[0] < 1 or pieceCoordinatesAfterMove[1] < 1 \
                         or pieceCoordinatesAfterMove[0] > 7 or pieceCoordinatesAfterMove[1] > 7 \
-                            or pieceCoordinatesAfterMove in pieces_list: break
+                            or pieceCoordinatesAfterMove in self.pieces: break
                     
                     possible_state = State(ignoreSetup=True)
-                    possible_state.pieces = np.array(self.pieces, order='K', copy=True)
+                    possible_state.pieces = [[p1[0], p1[1]], \
+                                            [p2[0], p2[1]], \
+                                            [p3[0], p3[1]], \
+                                            [p4[0], p4[1]], \
+                                            [p5[0], p5[1]], \
+                                            [p6[0], p6[1]], \
+                                            [p7[0], p7[1]], \
+                                            [p8[0], p8[1]], \
+                                            [p9[0], p9[1]], \
+                                            [p10[0], p10[1]], \
+                                            [p11[0], p11[1]], \
+                                            [p12[0], p12[1]]]
                     possible_state.pieces[i+i_offset][0] = pieceCoordinatesAfterMove[0]
                     possible_state.pieces[i+i_offset][1] = pieceCoordinatesAfterMove[1]
                     
@@ -195,7 +206,7 @@ class State:
     
     def getPieceIndexByCoordinates(self,x,y):
         try:
-            return self.getPiecesList().index([x,y])
+            return self.pieces.index([x,y])
         except ValueError:
             return -1
     
@@ -206,21 +217,13 @@ class State:
                 break
         return Move(oldCoordinates=self.pieces[changed_piece_idx], newCoordinates=state.pieces[changed_piece_idx])        
 
-    def getPiecesList(self):
-        if len(self.pieces_list) == 0:
-            self.pieces_list = self.pieces.tolist()
-        return self.pieces_list
-
 class Move:
     def __init__(self, oldCoordinates=None, newCoordinates=None, string=None):
         if string is not None:
             self.createFromString(string)
-        elif isinstance(oldCoordinates, np.ndarray) and isinstance(newCoordinates, np.ndarray):
+        else:
             self.oldCoordinates = oldCoordinates
             self.newCoordinates = newCoordinates
-        else:
-            self.oldCoordinates = np.array(oldCoordinates)
-            self.newCoordinates = np.array(newCoordinates)
         
     def createFromString(self,string):
         try:
@@ -249,8 +252,8 @@ class Move:
             print("Received move is invalid:", list(string))
             exit()
             
-        self.oldCoordinates = np.array([piece_to_move_row, piece_to_move_col])
-        self.newCoordinates = np.array([piece_new_row, piece_new_col])
+        self.oldCoordinates = [piece_to_move_row, piece_to_move_col]
+        self.newCoordinates = [piece_new_row, piece_new_col]
         if (self.oldCoordinates[0] == self.newCoordinates[0] and self.oldCoordinates[1] == self.newCoordinates[1]) or (self.oldCoordinates[0] != self.newCoordinates[0] and self.oldCoordinates[1] != self.newCoordinates[1]):
             print("Received move is invalid:", list(string))
             exit()
@@ -268,20 +271,15 @@ class Move:
         moveString = str(self.oldCoordinates[0]) + str(self.oldCoordinates[1]) + move_direction + str(amount_to_move) + '\n'
         return moveString
 
-class Color:
-    white = "W"
-    black = "B"
-    def other(color):
-        if color == "W": return "B"
-        else: return "W"
-        
-
 with open('caching/is_square_map.pickle', 'rb') as file:
     is_square_map = pickle.load(file)
 
 #global variables for performance: no need to instantiate these every time since they are constant
-directions = [np.array([-1,0]), np.array([1,0]), np.array([0,-1]), np.array([0,1])]
-index_combinations = list(combinations(range(6), 4))
+directions = [[-1,0], [1,0], [0,-1], [0,1]]
+index_combinations_temp = list(combinations(range(6), 4))
+index_combinations = []
+for i_combo in index_combinations_temp:
+    index_combinations.append((i_combo, [i + 6 for i in i_combo]))
 indices_to_check = range(6)
 white_piece_count = 6
 abs=abs

@@ -1,4 +1,4 @@
-from utils.GameClasses import State, Move, Color
+from utils.GameClasses import State, Move
 import math
 import socket
 import time
@@ -6,7 +6,7 @@ import time
 class Agent:
     def __init__(self, color, minSearchDepth=3, time_cutoff=9, iterative_deepening=True, useAlphaBetaPruning=True):
         self.color = color
-        self.opponent_color = Color.other(color)
+        self.opponent_color = color ^ 1
         self.minSearchDepth = minSearchDepth
         self.time_cutoff = time_cutoff if iterative_deepening else math.inf
         self.opponent_stalemate = 0.01
@@ -19,16 +19,15 @@ class Agent:
         self.start_time = time.time()
         self.extraDepth = 0
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
-        if best_next_state is None:
-            print("No moves available. Forfeiting.")
-            exit()
         while self.iterative_deepening:
             self.extraDepth += 1
             try:
-                potential_best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
-                best_next_state = potential_best_next_state
+                best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
             except TimeoutError:
                 break
+        if best_next_state is None:
+            print("No moves available. Forfeiting.")
+            exit()
         if not self.iterative_deepening: self.extraDepth += 1
         print(" >> {} searched {} moves ahead.\n".format(str(self.color), self.minSearchDepth + self.extraDepth - 1))
         return state.getMoveToState(best_next_state)
@@ -60,7 +59,7 @@ class Agent:
                     bestValue = value
                 if bestValue < beta: beta = bestValue
                 if self.useAlphaBetaPruning and alpha >= beta: break
-        return bestValue, (bestChildState if depth == 0 else None)
+        return bestValue, bestChildState
 
 class GameClient:
     def __init__(self, color, gameID, ip="156trlinux-1.ece.mcgill.ca", port=12345, initialBoardState=State()):
@@ -80,7 +79,7 @@ class GameClient:
         print("Successfully connected to game server.")
         server.send("game{} {}\n".format(self.gameID, str(self.color)).encode())
         print("Registered in game ID {} as the {} player.".format(self.gameID, str(self.color)))
-        if self.color == Color.white: #play first
+        if not self.color: #play first
             #compute our move and send to server
             our_move = self.agent.getNextMove(self.board_state)
             server.send(str(our_move).encode())
@@ -88,7 +87,7 @@ class GameClient:
             #update state of the board after the move
             self.board_state.update(our_move)
             self.board_state.display()
-            self.checkForGameEnd(Color.other(self.color))
+            self.checkForGameEnd(1)
             
         #start game
         while True:
@@ -110,7 +109,7 @@ class GameClient:
             #update state of the board after our move
             self.board_state.update(our_move)
             self.board_state.display()
-            self.checkForGameEnd(Color.other(self.color))
+            self.checkForGameEnd(self.color ^ 1)
         
     def checkForGameEnd(self, colorTurn):
         winner = self.board_state.getWinner()
