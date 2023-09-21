@@ -14,17 +14,17 @@ def checkForGameEnd(board_state, colorTurn):
 board_state = State()
 board_state.display()
 
-white_player = Agent(Color.white)
-black_player = Agent(Color.black)
+white_player = Agent(Color.white, time_cutoff=2)
+black_player = Agent(Color.black, time_cutoff=2)
 
 while True:
     white_move = white_player.getNextMove(board_state)
-    print("White plays " + str(white_move))
+    print("W plays " + str(white_move))
     board_state.update(white_move, check_validity=True)
     board_state.display()
     checkForGameEnd(board_state, Color.black)
     black_move = black_player.getNextMove(board_state)
-    print("Black plays " + str(black_move))
+    print("B plays " + str(black_move))
     board_state.update(black_move, check_validity=True)
     board_state.display()
     checkForGameEnd(board_state, Color.white)

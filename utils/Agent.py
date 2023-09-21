@@ -29,7 +29,7 @@ class Agent:
             except TimeoutError:
                 break
         if not self.iterative_deepening: self.extraDepth += 1
-        print(" >> {} searched {} moves ahead.".format(str(self.color), self.minSearchDepth + self.extraDepth - 1))
+        print(" >> {} searched {} moves ahead.\n".format(str(self.color), self.minSearchDepth + self.extraDepth - 1))
         return state.getMoveToState(best_next_state)
     
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
