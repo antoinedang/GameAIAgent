@@ -4,7 +4,7 @@ import socket
 import time
 
 class Agent:
-    def __init__(self, color, minSearchDepth=4, time_cutoff=9, iterative_deepening=True):
+    def __init__(self, color, minSearchDepth=3, time_cutoff=9, iterative_deepening=True):
         self.color = color
         self.opponent_color = Color.other(color)
         self.minSearchDepth = minSearchDepth
