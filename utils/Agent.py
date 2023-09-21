@@ -8,7 +8,7 @@ class Agent:
         self.color = color
         self.opponent_color = Color.other(color)
         self.minSearchDepth = minSearchDepth
-        self.time_cutoff = time_cutoff
+        self.time_cutoff = time_cutoff if iterative_deepening else math.inf
         self.opponent_stalemate = 0.01
         self.agent_stalemate = -0.01
         self.next_states = []
@@ -28,7 +28,7 @@ class Agent:
                 best_next_state = potential_best_next_state
             except TimeoutError:
                 break
-        
+        if not self.iterative_deepening: self.extraDepth += 1
         print(" >> {} searched {} moves ahead.".format(str(self.color), self.minSearchDepth + self.extraDepth - 1))
         return state.getMoveToState(best_next_state)
     

@@ -17,17 +17,17 @@ board_state.display()
 # board_state.display()
 # print(board_state.getWinner())
 # exit()
-white_player = Agent(Color.white)
+white_player = Agent(Color.white, iterative_deepening=False, minSearchDepth=4)
 black_player = Agent(Color.black)
 
 
-# for i in range(10000):
+# for i in range(50000):
 #     board_state.possibleNextStates(Color.black)
 #     board_state.possibleNextStates(Color.white)
 
 
 
-for i in range(1):
+for i in range(5):
     white_move = white_player.getNextMove(board_state)
     print("White plays " + str(white_move))
 exit()
