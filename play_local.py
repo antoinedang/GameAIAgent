@@ -10,13 +10,14 @@ def checkForGameEnd(board_state, colorTurn):
         print(winner + " wins!")
         exit()
     if len(board_state.possibleNextStates(colorTurn)) == 0:
-        print("Stalemate! (" + ("White" if colorTurn == Color.white else "Black") + " cannot move)")    
+        print("Stalemate! (" + ("White" if colorTurn == Color.white else "Black") + " cannot move)")
+        exit()    
 
 board_state = State()
 board_state.display()
 
-white_player = Agent(Color.white)
-black_player = Agent(Color.black)
+white_player = Agent(Color.white, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2)
+black_player = Agent(Color.black, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2)
 
 while True:
     white_move = white_player.getNextMove(board_state)

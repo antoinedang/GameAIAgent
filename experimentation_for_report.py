@@ -16,7 +16,7 @@ def checkForGameEnd(board_state, colorTurn):
 
 
 for depth in [3,4,5]:
-    white_player = Agent(Color.white)
+    white_player = Agent(Color.white, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2)
     
     board_state = State(whitePieceCoordinates=[(2,1), (6,2), (1,4), (7,6), (1,7), (2,7)], blackPieceCoordinates=[(5,1), (6,1), (7,1), (5,2), (7,2), (7,7)])
     board_state.display()

@@ -19,8 +19,8 @@ board_state.display()
 # board_state.display()
 # print(board_state.getWinner())
 # exit()
-white_player = Agent(Color.white)
-black_player = Agent(Color.black)
+white_player = Agent(Color.white, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2)
+black_player = Agent(Color.black, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2)
 
 
 # for i in range(10000):

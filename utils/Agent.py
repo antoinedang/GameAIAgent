@@ -4,14 +4,14 @@ import socket
 import random
 
 class Agent:
-    def __init__(self, color, maxSearchDepth=4, fractionalDepth=0.5):
+    def __init__(self, color, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2):
         self.color = color
         self.opponent_color = Color.other(color)
         self.maxSearchDepth = maxSearchDepth
         self.opponent_stalemate = 0.01
         self.agent_stalemate = -0.01
         self.fractionalDepth = fractionalDepth
-        self.hardDepthCutoff = maxSearchDepth + 1
+        self.hardDepthCutoff = maxSearchDepth + fractionDepthLimit
         
     def getNextMove(self, state):
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
@@ -49,10 +49,10 @@ class Agent:
         return bestValue, (bestChildState if depth == 0 else None)
 
 class GameClient:
-    def __init__(self, color, gameID, ip="156trlinux-1.ece.mcgill.ca", port=12345, initialBoardState=State()):
+    def __init__(self, color, gameID, ip="156trlinux-1.ece.mcgill.ca", port=12345, initialBoardState=State(), maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2):
         self.board_state = initialBoardState
         print("Starting agent.")
-        self.agent = Agent(color)
+        self.agent = Agent(color, maxSearchDepth=maxSearchDepth, fractionalDepth=fractionalDepth, fractionDepthLimit=fractionDepthLimit)
         self.board_state.display()
         self.gameID = gameID
         self.port = port
