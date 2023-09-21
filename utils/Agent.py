@@ -4,7 +4,7 @@ import socket
 import time
 
 class Agent:
-    def __init__(self, color, minSearchDepth=3, time_cutoff=9, iterative_deepening=True):
+    def __init__(self, color, minSearchDepth=3, time_cutoff=9, iterative_deepening=True, useAlphaBetaPruning=True):
         self.color = color
         self.opponent_color = Color.other(color)
         self.minSearchDepth = minSearchDepth
@@ -13,6 +13,7 @@ class Agent:
         self.agent_stalemate = -0.01
         self.next_states = []
         self.iterative_deepening = iterative_deepening
+        self.useAlphaBetaPruning = useAlphaBetaPruning
         
     def getNextMove(self, state):
         self.start_time = time.time()
@@ -48,7 +49,7 @@ class Agent:
                     bestValue = value
                     bestChildState = child_state
                 if bestValue > alpha: alpha = bestValue
-                if alpha >= beta: break
+                if self.useAlphaBetaPruning and alpha >= beta: break
         else:
             bestValue = math.inf
             next_states = state.possibleNextStates(self.opponent_color)
@@ -58,7 +59,7 @@ class Agent:
                 if bestValue > value:
                     bestValue = value
                 if bestValue < beta: beta = bestValue
-                if alpha >= beta: break
+                if self.useAlphaBetaPruning and alpha >= beta: break
         return bestValue, (bestChildState if depth == 0 else None)
 
 class GameClient:
