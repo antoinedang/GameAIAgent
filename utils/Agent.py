@@ -1,27 +1,40 @@
 from utils.GameClasses import State, Move, Color
 import math
 import socket
-import random
+import time
 
 class Agent:
-    def __init__(self, color, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2):
+    def __init__(self, color, minSearchDepth=4, time_cutoff=9, iterative_deepening=True):
         self.color = color
         self.opponent_color = Color.other(color)
-        self.maxSearchDepth = maxSearchDepth
+        self.minSearchDepth = minSearchDepth
+        self.time_cutoff = time_cutoff
         self.opponent_stalemate = 0.01
         self.agent_stalemate = -0.01
-        self.fractionalDepth = fractionalDepth
-        self.hardDepthCutoff = maxSearchDepth + fractionDepthLimit
+        self.next_states = []
+        self.iterative_deepening = iterative_deepening
         
     def getNextMove(self, state):
+        self.start_time = time.time()
+        self.extraDepth = 0
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
         if best_next_state is None:
             print("No moves available. Forfeiting.")
             exit()
+        while self.iterative_deepening:
+            self.extraDepth += 1
+            try:
+                potential_best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
+                best_next_state = potential_best_next_state
+            except TimeoutError:
+                break
+        
+        print(" >> {} searched {} moves ahead.".format(str(self.color), self.minSearchDepth + self.extraDepth - 1))
         return state.getMoveToState(best_next_state)
     
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
-        if depth >= self.maxSearchDepth and (depth >= self.hardDepthCutoff or random.random() > self.fractionalDepth): return state.quality(self.color, depth), None
+        if time.time() - self.start_time > self.time_cutoff: raise TimeoutError
+        if depth >= self.minSearchDepth + self.extraDepth: return state.quality(self.color, depth), None
         winner = state.getWinner()
         if winner is not None: return state.quality(self.color, depth, winner=winner), None
         bestChildState = None     
@@ -49,10 +62,10 @@ class Agent:
         return bestValue, (bestChildState if depth == 0 else None)
 
 class GameClient:
-    def __init__(self, color, gameID, ip="156trlinux-1.ece.mcgill.ca", port=12345, initialBoardState=State(), maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2):
+    def __init__(self, color, gameID, ip="156trlinux-1.ece.mcgill.ca", port=12345, initialBoardState=State()):
         self.board_state = initialBoardState
         print("Starting agent.")
-        self.agent = Agent(color, maxSearchDepth=maxSearchDepth, fractionalDepth=fractionalDepth, fractionDepthLimit=fractionDepthLimit)
+        self.agent = Agent(color)
         self.board_state.display()
         self.gameID = gameID
         self.port = port
@@ -64,8 +77,8 @@ class GameClient:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.connect((self.ip, self.port))
         print("Successfully connected to game server.")
-        server.send("game{} {}\n".format(self.gameID, "white" if self.color == Color.white else "black").encode())
-        print("Registered in game ID {} as the {} player.".format(self.gameID, "white" if self.color == Color.white else "black"))
+        server.send("game{} {}\n".format(self.gameID, str(self.color)).encode())
+        print("Registered in game ID {} as the {} player.".format(self.gameID, str(self.color)))
         if self.color == Color.white: #play first
             #compute our move and send to server
             our_move = self.agent.getNextMove(self.board_state)
@@ -102,9 +115,7 @@ class GameClient:
         winner = self.board_state.getWinner()
         if winner is not None:
             print("Game Over!")
-            if winner == Color.white: winner = "White"
-            else: winner = "Black"
-            print(winner + " wins!")
+            print(str(winner) + " wins!")
             exit()
         if len(self.board_state.possibleNextStates(colorTurn)) == 0:
-            print("Stalemate! (" + ("White" if colorTurn == Color.white else "Black") + " cannot move)")
+            print("Stalemate! (" + str(colorTurn) + " cannot move)")

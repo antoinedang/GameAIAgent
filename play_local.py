@@ -5,19 +5,17 @@ def checkForGameEnd(board_state, colorTurn):
     winner = board_state.getWinner()
     if winner is not None:
         print("Game Over!")
-        if winner == Color.white: winner = "White"
-        else: winner = "Black"
-        print(winner + " wins!")
+        print(str(winner) + " wins!")
         exit()
     if len(board_state.possibleNextStates(colorTurn)) == 0:
-        print("Stalemate! (" + ("White" if colorTurn == Color.white else "Black") + " cannot move)")
+        print("Stalemate! (" + str(colorTurn) + " cannot move)")
         exit()    
 
 board_state = State()
 board_state.display()
 
-white_player = Agent(Color.white, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2)
-black_player = Agent(Color.black, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2)
+white_player = Agent(Color.white)
+black_player = Agent(Color.black)
 
 while True:
     white_move = white_player.getNextMove(board_state)

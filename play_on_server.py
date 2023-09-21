@@ -19,7 +19,7 @@ try:
     if color_selection == 1: color = Color.white
     else: color = Color.black
 
-    agent = GameClient(color=color, gameID=gameID, maxSearchDepth=4, fractionalDepth=0.5, fractionDepthLimit=2)
+    agent = GameClient(color=color, gameID=gameID)
 
     agent.start()
 except KeyboardInterrupt:

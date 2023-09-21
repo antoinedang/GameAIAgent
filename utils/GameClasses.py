@@ -241,6 +241,7 @@ class Color:
     def other(color):
         if color == "W": return "B"
         else: return "W"
+        
 
 with open('caching/is_square_map.pickle', 'rb') as file:
     is_square_map = pickle.load(file)
