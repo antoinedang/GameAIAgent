@@ -130,23 +130,25 @@ class State:
         # OTHERWISE NO CLEAR WINNER
         #good heuristic: distance between pieces and 
         
+        pieces_list = self.getPiecesList()
+        
         if color == Color.white:
-            our_pieces = self.pieces[:white_piece_count]
-            opponent_pieces = self.pieces
+            our_pieces = pieces_list[:white_piece_count]
+            opponent_pieces = pieces_list
         else:
-            our_pieces = self.pieces
-            opponent_pieces = self.pieces[:white_piece_count]
+            our_pieces = pieces_list
+            opponent_pieces = pieces_list[:white_piece_count]
 
         score = 0
         
         for i in indices_to_check:
             for j in indices_to_check:
-                distance_between_agent_and_enemy = abs(our_pieces[i,0]-opponent_pieces[j,0]) + abs(our_pieces[i,1]-opponent_pieces[j,1])
+                distance_between_agent_and_enemy = abs(our_pieces[i][0]-opponent_pieces[j][0]) + abs(our_pieces[i][1]-opponent_pieces[j][1])
                 score += (1/white_piece_count)*distance_between_agent_and_enemy
 
                 if j <= i: continue
-                agent_distance_to_self = abs(our_pieces[i,0]-our_pieces[j,0]) + abs(our_pieces[i,1]-our_pieces[j,1])
-                enemy_distance_to_self = abs(opponent_pieces[i,0]-opponent_pieces[j,0]) + abs(opponent_pieces[i,1]-opponent_pieces[j,1])
+                agent_distance_to_self = abs(our_pieces[i][0]-our_pieces[j][0]) + abs(our_pieces[i][1]-our_pieces[j][1])
+                enemy_distance_to_self = abs(opponent_pieces[i][0]-opponent_pieces[j][0]) + abs(opponent_pieces[i][1]-opponent_pieces[j][1])
                 score += (enemy_distance_to_self - 2*agent_distance_to_self)
 
         return score
