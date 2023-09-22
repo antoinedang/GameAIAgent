@@ -8,15 +8,10 @@ class State:
         np_white_pieces = np.array(whitePieceCoordinates).reshape(-1,2)
         np_black_pieces = np.array(blackPieceCoordinates).reshape(-1,2)
         self.pieces = np.vstack((np_white_pieces, np_black_pieces)).tolist()
-        global index_combinations
         global indices_to_check
         global white_piece_count
         white_piece_count = int(len(self.pieces)/2)
         indices_to_check = range(white_piece_count)
-        index_combinations_temp = list(combinations(range(white_piece_count), 4))
-        index_combinations = []
-        for i_combo in index_combinations_temp:
-            index_combinations.append((i_combo, [i + white_piece_count for i in i_combo]))
         
     def display(self):
         print("  x 1 2 3 4 5 6 7 ")
@@ -303,10 +298,6 @@ with open('caching/is_square_map.pickle', 'rb') as file:
 
 #global variables for performance: no need to instantiate these every time since they are constant
 directions = [[-1,0], [1,0], [0,-1], [0,1]]
-index_combinations_temp = list(combinations(range(6), 4))
-index_combinations = []
-for i_combo in index_combinations_temp:
-    index_combinations.append((i_combo, [i + 6 for i in i_combo]))
 indices_to_check = range(6)
 white_piece_count = 6
 abs=abs
