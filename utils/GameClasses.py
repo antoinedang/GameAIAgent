@@ -113,19 +113,7 @@ class State:
         # elif winner is not None: return -10/depth # OPPONENT WIN
         if winner == color: return 1 # AGENT WIN
         elif winner is not None: return -1 # OPPONENT WIN
-        # OTHERWISE NO CLEAR WINNER
-        #simple heuristic: distance from the center of the board
-        opponent_color = color ^ 1
-        our_pieces = self.pieces[color*white_piece_count:white_piece_count + color*white_piece_count]
-        opponent_pieces = self.pieces[opponent_color*white_piece_count:white_piece_count + opponent_color*white_piece_count]
-        
-        score = 0
-        
-        for i in indices_to_check: 
-            score += (opponent_pieces[i][0]-4)**2 + (opponent_pieces[i][1]-4)**2
-            score -= (our_pieces[i][0]-4)**2 + (our_pieces[i][1]-4)**2
-        
-        return score / (18*6)
+        return 0
         
     def quality(self, color, depth, winner=-1):
         if winner == -1: winner = self.getWinner()
