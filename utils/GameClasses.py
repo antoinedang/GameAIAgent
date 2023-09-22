@@ -98,13 +98,54 @@ class State:
         
     def getWinner(self):
         p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12 = self.pieces
-        pieces_list = [tuple(p1),tuple(p2),tuple(p3),tuple(p4),tuple(p5),tuple(p6),tuple(p7),tuple(p8),tuple(p9),tuple(p10),tuple(p11),tuple(p12)]
-        for white_combo, black_combo in index_combinations:
-            wa,wb,wc,wd = white_combo
-            if is_square_map[frozenset([pieces_list[wa], pieces_list[wb], pieces_list[wc], pieces_list[wd]])]: return 0
-            ba,bb,bc,bd = black_combo
-            if is_square_map[frozenset([pieces_list[ba], pieces_list[bb], pieces_list[bc], pieces_list[bd]])]: return 1
-            
+        w1,w2,w3,w4,w5,w6,b1,b2,b3,b4,b5,b6 = [tuple(p1),tuple(p2),tuple(p3),tuple(p4),tuple(p5),tuple(p6),tuple(p7),tuple(p8),tuple(p9),tuple(p10),tuple(p11),tuple(p12)]
+        
+        # (1, 2, 3, 4) - 1
+        if is_square_map[frozenset([w1, w2, w3, w4])]: return 0
+        if is_square_map[frozenset([b1, b2, b3, b4])]: return 1
+        # (1, 2, 3, 5) - 2
+        if is_square_map[frozenset([w1, w2, w3, w5])]: return 0
+        if is_square_map[frozenset([b1, b2, b3, b5])]: return 1
+        # (1, 2, 3, 6) - 3
+        if is_square_map[frozenset([w1, w2, w3, w6])]: return 0
+        if is_square_map[frozenset([b1, b2, b3, b6])]: return 1
+        # (1, 2, 4, 5) - 4
+        if is_square_map[frozenset([w1, w2, w4, w5])]: return 0
+        if is_square_map[frozenset([b1, b2, b4, b5])]: return 1
+        # (1, 2, 4, 6) - 5
+        if is_square_map[frozenset([w1, w2, w4, w6])]: return 0
+        if is_square_map[frozenset([b1, b2, b4, b6])]: return 1
+        # (1, 2, 5, 6) - 6
+        if is_square_map[frozenset([w1, w2, w5, w6])]: return 0
+        if is_square_map[frozenset([b1, b2, b5, b6])]: return 1
+        # (1, 3, 4, 5) - 7
+        if is_square_map[frozenset([w1, w3, w4, w5])]: return 0
+        if is_square_map[frozenset([b1, b3, b4, b5])]: return 1
+        # (1, 3, 4, 6) - 8
+        if is_square_map[frozenset([w1, w3, w4, w6])]: return 0
+        if is_square_map[frozenset([b1, b3, b4, b6])]: return 1
+        # (1, 3, 5, 6) - 9
+        if is_square_map[frozenset([w1, w3, w5, w6])]: return 0
+        if is_square_map[frozenset([b1, b3, b5, b6])]: return 1
+        # (1, 4, 5, 6) - 10
+        if is_square_map[frozenset([w1, w4, w5, w6])]: return 0
+        if is_square_map[frozenset([b1, b4, b5, b6])]: return 1
+        # (2, 3, 4, 5) - 11
+        if is_square_map[frozenset([w2, w3, w4, w5])]: return 0
+        if is_square_map[frozenset([b2, b3, b4, b5])]: return 1
+        # (2, 3, 4, 6) - 12
+        if is_square_map[frozenset([w2, w3, w4, w6])]: return 0
+        if is_square_map[frozenset([b2, b3, b4, b6])]: return 1
+        # (2, 3, 5, 6) - 13
+        if is_square_map[frozenset([w2, w3, w5, w6])]: return 0
+        if is_square_map[frozenset([b2, b3, b5, b6])]: return 1
+        # (2, 4, 5, 6) - 14
+        if is_square_map[frozenset([w2, w4, w5, w6])]: return 0
+        if is_square_map[frozenset([b2, b4, b5, b6])]: return 1
+        # (3, 4, 5, 6) - 15
+        if is_square_map[frozenset([w3, w4, w5, w6])]: return 0
+        if is_square_map[frozenset([b3, b4, b5, b6])]: return 1
+        
         return None
         
     def _quality(self, color, depth, winner=-1):
