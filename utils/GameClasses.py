@@ -96,50 +96,52 @@ class State:
         w1,w2,w3,w4,w5,w6,b1,b2,b3,b4,b5,b6 = [tuple(p1),tuple(p2),tuple(p3),tuple(p4),tuple(p5),tuple(p6),tuple(p7),tuple(p8),tuple(p9),tuple(p10),tuple(p11),tuple(p12)]
         
         # (1, 2, 3, 4) - 1
-        if is_square_map[frozenset([w1, w2, w3, w4])]: return 0
-        if is_square_map[frozenset([b1, b2, b3, b4])]: return 1
         # (1, 2, 3, 5) - 2
-        if is_square_map[frozenset([w1, w2, w3, w5])]: return 0
-        if is_square_map[frozenset([b1, b2, b3, b5])]: return 1
         # (1, 2, 3, 6) - 3
-        if is_square_map[frozenset([w1, w2, w3, w6])]: return 0
-        if is_square_map[frozenset([b1, b2, b3, b6])]: return 1
         # (1, 2, 4, 5) - 4
-        if is_square_map[frozenset([w1, w2, w4, w5])]: return 0
-        if is_square_map[frozenset([b1, b2, b4, b5])]: return 1
         # (1, 2, 4, 6) - 5
-        if is_square_map[frozenset([w1, w2, w4, w6])]: return 0
-        if is_square_map[frozenset([b1, b2, b4, b6])]: return 1
         # (1, 2, 5, 6) - 6
-        if is_square_map[frozenset([w1, w2, w5, w6])]: return 0
-        if is_square_map[frozenset([b1, b2, b5, b6])]: return 1
         # (1, 3, 4, 5) - 7
-        if is_square_map[frozenset([w1, w3, w4, w5])]: return 0
-        if is_square_map[frozenset([b1, b3, b4, b5])]: return 1
         # (1, 3, 4, 6) - 8
-        if is_square_map[frozenset([w1, w3, w4, w6])]: return 0
-        if is_square_map[frozenset([b1, b3, b4, b6])]: return 1
         # (1, 3, 5, 6) - 9
-        if is_square_map[frozenset([w1, w3, w5, w6])]: return 0
-        if is_square_map[frozenset([b1, b3, b5, b6])]: return 1
         # (1, 4, 5, 6) - 10
-        if is_square_map[frozenset([w1, w4, w5, w6])]: return 0
-        if is_square_map[frozenset([b1, b4, b5, b6])]: return 1
         # (2, 3, 4, 5) - 11
-        if is_square_map[frozenset([w2, w3, w4, w5])]: return 0
-        if is_square_map[frozenset([b2, b3, b4, b5])]: return 1
         # (2, 3, 4, 6) - 12
-        if is_square_map[frozenset([w2, w3, w4, w6])]: return 0
-        if is_square_map[frozenset([b2, b3, b4, b6])]: return 1
         # (2, 3, 5, 6) - 13
-        if is_square_map[frozenset([w2, w3, w5, w6])]: return 0
-        if is_square_map[frozenset([b2, b3, b5, b6])]: return 1
         # (2, 4, 5, 6) - 14
-        if is_square_map[frozenset([w2, w4, w5, w6])]: return 0
-        if is_square_map[frozenset([b2, b4, b5, b6])]: return 1
         # (3, 4, 5, 6) - 15
-        if is_square_map[frozenset([w3, w4, w5, w6])]: return 0
-        if is_square_map[frozenset([b3, b4, b5, b6])]: return 1
+        if is_square_map[frozenset([w1, w2, w3, w4])] or \
+                is_square_map[frozenset([w1, w2, w3, w5])] or \
+                is_square_map[frozenset([w1, w2, w3, w6])] or \
+                is_square_map[frozenset([w1, w2, w4, w5])] or \
+                is_square_map[frozenset([w1, w2, w4, w6])] or \
+                is_square_map[frozenset([w1, w2, w5, w6])] or \
+                is_square_map[frozenset([w1, w3, w4, w5])] or \
+                is_square_map[frozenset([w1, w3, w4, w6])] or \
+                is_square_map[frozenset([w1, w3, w5, w6])] or \
+                is_square_map[frozenset([w1, w4, w5, w6])] or \
+                is_square_map[frozenset([w2, w3, w4, w5])] or \
+                is_square_map[frozenset([w2, w3, w4, w6])] or \
+                is_square_map[frozenset([w2, w3, w5, w6])] or \
+                is_square_map[frozenset([w2, w4, w5, w6])] or \
+                is_square_map[frozenset([w3, w4, w5, w6])]: return 0
+                
+        
+        elif is_square_map[frozenset([b1, b2, b3, b4])] or \
+                is_square_map[frozenset([b1, b2, b3, b5])] or \
+                is_square_map[frozenset([b1, b2, b3, b6])] or \
+                is_square_map[frozenset([b1, b2, b4, b5])] or \
+                is_square_map[frozenset([b1, b2, b4, b6])] or \
+                is_square_map[frozenset([b1, b2, b5, b6])] or \
+                is_square_map[frozenset([b1, b3, b4, b5])] or \
+                is_square_map[frozenset([b1, b3, b4, b6])] or \
+                is_square_map[frozenset([b1, b3, b5, b6])] or \
+                is_square_map[frozenset([b1, b4, b5, b6])] or \
+                is_square_map[frozenset([b2, b3, b4, b5])] or \
+                is_square_map[frozenset([b2, b3, b4, b6])] or \
+                is_square_map[frozenset([b2, b3, b5, b6])] or \
+                is_square_map[frozenset([b2, b4, b5, b6])] or \
+                is_square_map[frozenset([b3, b4, b5, b6])]: return 1
         
         return None
         
@@ -170,12 +172,12 @@ class State:
                 opponent_piece_j_x, opponent_piece_j_y = self.pieces[j+opp_i_offset]
                 
                 distance_between_agent_and_enemy = (our_piece_i_x-opponent_piece_j_x) * (our_piece_i_y-opponent_piece_j_y)
-                score += (15/36) * distance_between_agent_and_enemy**2
+                score += (15/36) * distance_between_agent_and_enemy*distance_between_agent_and_enemy
                 if j <= i: continue
                 our_piece_j_x, our_piece_j_y = self.pieces[j+i_offset]
                 agent_distance_to_self = (our_piece_i_x-our_piece_j_x) * (our_piece_i_y-our_piece_j_y)
                 enemy_distance_to_self = (opponent_piece_i_x-opponent_piece_j_x) * (opponent_piece_i_y-opponent_piece_j_y)
-                score += (enemy_distance_to_self**2 - 2 * agent_distance_to_self**2)
+                score += (enemy_distance_to_self*enemy_distance_to_self - 2 * agent_distance_to_self*agent_distance_to_self)
 
         return score
     
@@ -187,18 +189,18 @@ class State:
         
         possible_next_states = []
         for i in indices_to_check:
-            movable_piece = self.pieces[i+i_offset]
+            movable_piece_x, movable_piece_y = self.pieces[i+i_offset]
             max_move_dist = 3
             for e_i in indices_to_check:
                 e = self.pieces[e_i+opp_i_offset]
-                close = (e[0]-movable_piece[0])**2 <= 1 and (e[1]-movable_piece[1])**2 <= 1
+                close = (e[0]-movable_piece_x)**2 <= 1 and (e[1]-movable_piece_y)**2 <= 1
                 if close:
                     max_move_dist -= 1
                     if max_move_dist == 0: break
             if max_move_dist == 0: continue
             move_options = range(max_move_dist)
             for direction in directions:
-                pieceCoordinatesAfterMove = [movable_piece[0], movable_piece[1]]
+                pieceCoordinatesAfterMove = [movable_piece_x, movable_piece_y]
                 for _ in move_options:
                     pieceCoordinatesAfterMove[0] += direction[0]
                     pieceCoordinatesAfterMove[1] += direction[1]

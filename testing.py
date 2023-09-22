@@ -28,7 +28,7 @@ black_player = Agent(1)
 
 
 
-for i in range(1):
+for i in range(5):
     white_move = white_player.getNextMove(board_state)
     print("White plays " + str(white_move))
 exit()
