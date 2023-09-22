@@ -109,18 +109,16 @@ class State:
         
     def _quality(self, color, depth, winner=-1):
         if winner == -1: winner = self.getWinner()
-        # if winner == color: return 10/depth # AGENT WIN
-        # elif winner is not None: return -10/depth # OPPONENT WIN
+        
         if winner == color: return 1 # AGENT WIN
         elif winner is not None: return -1 # OPPONENT WIN
         return 0
         
-    def quality(self, color, depth, winner=-1):
-        if winner == -1: winner = self.getWinner()
-        # if winner == color: return 10/depth # AGENT WIN
-        # elif winner is not None: return -10/depth # OPPONENT WIN
-        if winner == color: return 10000 / depth # AGENT WIN
-        elif winner is not None: return -10000 / depth # OPPONENT WIN
+    def quality(self, color, depth, winner=False):
+        if winner == False: winner = self.getWinner()
+        
+        if winner == color: return 100000 - depth # AGENT WIN
+        elif winner is not None: return -100000 + depth # OPPONENT WIN
         # OTHERWISE NO CLEAR WINNER
         #good heuristic: distance between pieces and 
         
@@ -130,18 +128,18 @@ class State:
         score = 0
         for i in indices_to_check:
             our_piece_i_x, our_piece_i_y = self.pieces[i+i_offset]
-            opponent_piece_i = self.pieces[i+opp_i_offset]
+            opponent_piece_i_x, opponent_piece_i_y = self.pieces[i+opp_i_offset]
             
             for j in indices_to_check:
                 opponent_piece_j_x, opponent_piece_j_y = self.pieces[j+opp_i_offset]
                 
-                distance_between_agent_and_enemy = (our_piece_i_x-opponent_piece_j_x)**2 + (our_piece_i_y-opponent_piece_j_y)**2
-                score += 0.01*distance_between_agent_and_enemy
+                distance_between_agent_and_enemy = (our_piece_i_x-opponent_piece_j_x) * (our_piece_i_y-opponent_piece_j_y)
+                score += (15/36) * distance_between_agent_and_enemy**2
                 if j <= i: continue
-                our_piece_j = self.pieces[j+i_offset]
-                agent_distance_to_self = (our_piece_i_x-our_piece_j[0])**2 + (our_piece_i_y-our_piece_j[1])**2
-                enemy_distance_to_self = (opponent_piece_i[0]-opponent_piece_j_x)**2 + (opponent_piece_i[1]-opponent_piece_j_y)**2
-                score += (enemy_distance_to_self - 2*agent_distance_to_self)
+                our_piece_j_x, our_piece_j_y = self.pieces[j+i_offset]
+                agent_distance_to_self = (our_piece_i_x-our_piece_j_x) * (our_piece_i_y-our_piece_j_y)
+                enemy_distance_to_self = (opponent_piece_i_x-opponent_piece_j_x) * (opponent_piece_i_y-opponent_piece_j_y)
+                score += (enemy_distance_to_self**2 - 2 * agent_distance_to_self**2)
 
         return score
     
