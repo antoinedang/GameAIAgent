@@ -29,7 +29,7 @@ class Agent:
             print("No moves available. Forfeiting.")
             exit()
         if not self.iterative_deepening: self.extraDepth += 1
-        print(" >> {} searched {} moves ahead.\n".format(str(self.color), self.minSearchDepth + self.extraDepth - 1))
+        print(" >> {} searched {} moves ahead.\n".format("Black" if self.color else "White", self.minSearchDepth + self.extraDepth - 1))
         return state.getMoveToState(best_next_state)
     
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
@@ -77,8 +77,8 @@ class GameClient:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.connect((self.ip, self.port))
         print("Successfully connected to game server.")
-        server.send("game{} {}\n".format(self.gameID, str(self.color)).encode())
-        print("Registered in game ID {} as the {} player.".format(self.gameID, str(self.color)))
+        server.send("game{} {}\n".format(self.gameID, "black" if self.color else "white").encode())
+        print("Registered in game ID {} as the {} player.".format(self.gameID, "Black" if self.color else "White"))
         if not self.color: #play first
             #compute our move and send to server
             our_move = self.agent.getNextMove(self.board_state)
@@ -115,7 +115,7 @@ class GameClient:
         winner = self.board_state.getWinner()
         if winner is not None:
             print("Game Over!")
-            print(str(winner) + " wins!")
+            print(str("Black" if winner else "White") + " wins!")
             exit()
         if len(self.board_state.possibleNextStates(colorTurn)) == 0:
-            print("Stalemate! (" + str(colorTurn) + " cannot move)")
+            print("Stalemate! (" + str("Black" if colorTurn else "White") + " cannot move)")

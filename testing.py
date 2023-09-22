@@ -5,13 +5,14 @@ def checkForGameEnd(board_state, colorTurn):
     winner = board_state.getWinner()
     if winner is not None:
         print("Game Over!")
-        print(str(winner) + " wins!")
+        print(str("Black" if winner else "White") + " wins!")
         exit()
     if len(board_state.possibleNextStates(colorTurn)) == 0:
-        print("Stalemate! (" + str(colorTurn) + " cannot move)")
+        print("Stalemate! (" + str("Black" if colorTurn else "White") + " cannot move)")
         
 
 board_state = State()
+
 board_state.display()
 # board_state.update(Move(string="34N1\n"))
 # board_state.display()
