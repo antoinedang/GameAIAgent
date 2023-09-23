@@ -14,10 +14,18 @@ class Agent:
         self.next_states = []
         self.iterative_deepening = iterative_deepening
         self.useAlphaBetaPruning = useAlphaBetaPruning
+        self.move_threshold_to_seperate = 30
+        self.try_to_seperate_pieces = False
         
     def getNextMove(self, state):
+        print(len(state.possibleNextStates(self.color) + state.possibleNextStates(self.opponent_color)))
+        if len(state.possibleNextStates(self.color) + state.possibleNextStates(self.opponent_color)) < self.move_threshold_to_seperate:
+            self.try_to_seperate_pieces = True
+        else:
+            self.try_to_seperate_pieces = False
         self.start_time = time.time()
         self.extraDepth = 0
+        
         best_next_state = self.alphaBetaMiniMaxSearch(state)[1]
         while self.iterative_deepening:
             self.extraDepth += 1
@@ -34,9 +42,9 @@ class Agent:
     
     def alphaBetaMiniMaxSearch(self, state, depth=0, alpha=-math.inf, beta=math.inf, isMaxPlayerTurn=True):
         if time.time() - self.start_time > self.time_cutoff: raise TimeoutError
-        if depth >= self.minSearchDepth + self.extraDepth: return state.quality(self.color, depth), None
+        if depth >= self.minSearchDepth + self.extraDepth: return state.quality(self.color, depth, self.try_to_seperate_pieces), None
         winner = state.getWinner()
-        if winner is not None: return state.quality(self.color, depth, winner=winner), None
+        if winner is not None: return state.quality(self.color, depth, self.try_to_seperate_pieces, winner=winner), None
         bestChildState = None     
         if isMaxPlayerTurn:
             bestValue = -math.inf
