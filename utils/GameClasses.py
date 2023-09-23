@@ -179,12 +179,12 @@ class State:
                 opponent_piece_j_x, opponent_piece_j_y = self.pieces[j+opp_i_offset]
                 
                 distance_between_agent_and_enemy = (our_piece_i_x-opponent_piece_j_x) * (our_piece_i_y-opponent_piece_j_y)
-                score += (15/36) * distance_between_agent_and_enemy*distance_between_agent_and_enemy
+                score += 0.4 * distance_between_agent_and_enemy*distance_between_agent_and_enemy
                 if j <= i: continue
                 our_piece_j_x, our_piece_j_y = self.pieces[j+i_offset]
                 agent_distance_to_self = (our_piece_i_x-our_piece_j_x) * (our_piece_i_y-our_piece_j_y)
                 enemy_distance_to_self = (opponent_piece_i_x-opponent_piece_j_x) * (opponent_piece_i_y-opponent_piece_j_y)
-                score += (enemy_distance_to_self*enemy_distance_to_self - 2 * agent_distance_to_self*agent_distance_to_self)
+                score += (enemy_distance_to_self*enemy_distance_to_self - agent_distance_to_self*agent_distance_to_self)
 
         return score
     
