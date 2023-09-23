@@ -13,7 +13,7 @@ def checkForGameEnd(board_state, colorTurn):
 
 board_state = State()
 # board_state = State(whitePieceCoordinates=[(2,1), (6,2), (1,4), (7,6), (1,7), (2,7)], blackPieceCoordinates=[(5,1), (6,1), (7,1), (5,2), (7,2), (7,7)])
-board_state = State(whitePieceCoordinates=[(6,1), (7,1), (5,2), (6,4), (7,6), (7,7)], blackPieceCoordinates=[(6,2), (7,2), (2,6), (6,6), (2,7), (3,7)])
+# board_state = State(whitePieceCoordinates=[(6,1), (7,1), (5,2), (6,4), (7,6), (7,7)], blackPieceCoordinates=[(6,2), (7,2), (2,6), (6,6), (2,7), (3,7)])
 
 board_state.display()
 
