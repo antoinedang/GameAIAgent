@@ -75,8 +75,13 @@ class GameClient:
         #TODO connect to server at hostname:port
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.connect((self.ip, self.port))
-        server.send("game{} {}\n".format(self.gameID, "black" if self.color else "white").encode())
+        registration_msg = "game{} {}\n".format(self.gameID, "black" if self.color else "white")
+        server.send((registration_msg).encode())
         print("Successfully connected to game server. Starting gameplay.\n")
+        opponent_registration_msg = "game{} {}\n".format(self.gameID, "white" if self.color else "black")
+        
+        msgs_to_ignore = [registration_msg, opponent_registration_msg]
+        last_move_sent = ""
         
         self.board_state.display()
         
@@ -85,6 +90,7 @@ class GameClient:
             our_move = self.agent.getNextMove(self.board_state)
             server.send(str(our_move).encode())
             print("Sent " + our_move)
+            last_move_sent = our_move
             
             #update state of the board after the move
             self.board_state.update(our_move)
@@ -98,8 +104,12 @@ class GameClient:
             received = server.recv(1024).decode()
             move = None
             for msg in received.split('\n'):
-                if len(msg) != 4: continue
-                move = msg + '\n'
+                msg += '\n'
+                if msg in msgs_to_ignore: continue
+                elif msg == last_move_sent:
+                    last_move_sent = ""
+                    continue
+                move = msg
                 
             if move is None: continue
             print("Received " + msg)
@@ -113,6 +123,7 @@ class GameClient:
             our_move = self.agent.getNextMove(self.board_state)
             server.send(str(our_move).encode())
             print("Sent " + our_move)
+            last_move_sent = our_move
             
             #update state of the board after our move
             self.board_state.update(our_move)
