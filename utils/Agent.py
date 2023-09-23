@@ -77,10 +77,8 @@ class GameClient:
         server.connect((self.ip, self.port))
         registration_msg = "game{} {}\n".format(self.gameID, "black" if self.color else "white")
         server.send((registration_msg).encode())
-        print("Successfully connected to game server. Starting gameplay.\n")
+        print("\nSuccessfully connected to game server. Starting gameplay.\n")
         opponent_registration_msg = "game{} {}\n".format(self.gameID, "white" if self.color else "black")
-        
-        msgs_to_ignore = [registration_msg, opponent_registration_msg]
         last_move_sent = ""
         
         self.board_state.display()
@@ -89,46 +87,52 @@ class GameClient:
             #compute our move and send to server
             our_move = self.agent.getNextMove(self.board_state)
             server.send(str(our_move).encode())
-            print("Sent " + our_move)
-            last_move_sent = our_move
+            print("Sent " + str(our_move))
+            last_move_sent = str(our_move)
             
             #update state of the board after the move
             self.board_state.update(our_move)
             self.board_state.display()
             self.checkForGameEnd(1)
             
+        print("Waiting for opponent move...\n")
         #start game
         while True:
-            print("Waiting for opponent move...")
             #receive message from server for opponent move
             received = server.recv(1024).decode()
             move = None
             for msg in received.split('\n'):
+                if len(msg) == 0: continue
                 msg += '\n'
-                if msg in msgs_to_ignore: continue
+                if msg == registration_msg: continue
+                elif msg == opponent_registration_msg:
+                    print("Opponent has joined the game.")
+                    continue
                 elif msg == last_move_sent:
                     last_move_sent = ""
                     continue
                 move = msg
                 
             if move is None: continue
-            print("Received " + msg)
+            print("Received " + str(move))
             
             #update state of the board after opponent's move
-            self.board_state.update(Move(string=msg), check_validity=True)
+            self.board_state.update(Move(string=move), check_validity=True)
             self.board_state.display()
             self.checkForGameEnd(self.color)
             
+            print("Searching for best move...\n")
             #decide our move and send to server
             our_move = self.agent.getNextMove(self.board_state)
             server.send(str(our_move).encode())
-            print("Sent " + our_move)
-            last_move_sent = our_move
+            print("Sent " + str(our_move))
+            last_move_sent = str(our_move)
             
             #update state of the board after our move
             self.board_state.update(our_move)
             self.board_state.display()
             self.checkForGameEnd(self.color ^ 1)
+            print("Waiting for opponent move...\n")
         
     def checkForGameEnd(self, colorTurn):
         winner = self.board_state.getWinner()

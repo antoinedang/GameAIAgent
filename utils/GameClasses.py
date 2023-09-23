@@ -1,6 +1,5 @@
 import numpy as np
 import pickle
-import numba as nb
 
 class State:
     def __init__(self, whitePieceCoordinates=[[5,1], [1,3], [1,4], [7,4], [7,5], [3,7]], blackPieceCoordinates=[(2,1), (3,1), (7,2), (1,6), (5,7), (6,7)], ignoreSetup=False):
