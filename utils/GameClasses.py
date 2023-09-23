@@ -1,5 +1,4 @@
 import numpy as np
-from itertools import combinations
 import pickle
 
 class State:

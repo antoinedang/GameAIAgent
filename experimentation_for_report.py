@@ -1,4 +1,4 @@
-from utils.GameClasses import State, Move
+from utils.GameClasses import State
 from utils.Agent import Agent, GameClient
 
 def checkForGameEnd(board_state, colorTurn):
