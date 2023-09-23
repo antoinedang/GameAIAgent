@@ -75,28 +75,16 @@ class GameClient:
         #TODO connect to server at hostname:port
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.connect((self.ip, self.port))
-        print("Successfully connected to game server.")
-        
-        agent_connected = False
-        opponent_connected = False
         server.send("game{} {}\n".format(self.gameID, "black" if self.color else "white").encode())
+        print("Successfully connected to game server. Starting gameplay.\n")
         
-        while not (agent_connected and opponent_connected):
-            msg = server.recv(1024).decode()
-            if msg == "game{} {}".format(self.gameID, "black" if self.color else "white"):
-                print("Successfully joined the game.")
-                agent_connected = True
-            if msg == "game{} {}".format(self.gameID, "white" if self.color else "black"):
-                print("Opponent has joined the game.")
-                opponent_connected = True
-        
-        print("Starting gameplay...\n")
         self.board_state.display()
         
         if not self.color: #play first
             #compute our move and send to server
             our_move = self.agent.getNextMove(self.board_state)
             server.send(str(our_move).encode())
+            print("Sent " + our_move)
             
             #update state of the board after the move
             self.board_state.update(our_move)
@@ -107,12 +95,17 @@ class GameClient:
         while True:
             print("Waiting for opponent move...")
             #receive message from server for opponent move
-            opponent_move = server.recv(1024).decode()
-            if ("B" if self.color else "W") in opponent_move: continue # ignore messages about our own moves
-            print("Received " + opponent_move)
+            received = server.recv(1024).decode()
+            move = None
+            for msg in received.split('\n'):
+                if len(msg) != 4: continue
+                move = msg + '\n'
+                
+            if move is None: continue
+            print("Received " + msg)
             
             #update state of the board after opponent's move
-            self.board_state.update(Move(string=opponent_move), check_validity=True)
+            self.board_state.update(Move(string=msg), check_validity=True)
             self.board_state.display()
             self.checkForGameEnd(self.color)
             
