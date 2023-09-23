@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import numba as nb
 
 class State:
     def __init__(self, whitePieceCoordinates=[[5,1], [1,3], [1,4], [7,4], [7,5], [3,7]], blackPieceCoordinates=[(2,1), (3,1), (7,2), (1,6), (5,7), (6,7)], ignoreSetup=False):
@@ -7,10 +8,6 @@ class State:
         np_white_pieces = np.array(whitePieceCoordinates).reshape(-1,2)
         np_black_pieces = np.array(blackPieceCoordinates).reshape(-1,2)
         self.pieces = np.vstack((np_white_pieces, np_black_pieces)).tolist()
-        global indices_to_check
-        global white_piece_count
-        white_piece_count = int(len(self.pieces)/2)
-        indices_to_check = range(white_piece_count)
         
     def display(self):
         print("  x 1 2 3 4 5 6 7 ")
@@ -21,7 +18,7 @@ class State:
                 piece_index = self.getPieceIndexByCoordinates(column+1, row+1)
                 if piece_index == -1:
                     print(" ", end='')
-                elif piece_index < white_piece_count:
+                elif piece_index < 6:
                     print("O", end='')
                 else:
                     print("X", end='')
@@ -70,10 +67,10 @@ class State:
                 num_steps += 1
                 
     def numSquaresMovable(self, piece_index):
-        if piece_index < white_piece_count:
-            enemy_pieces = self.pieces[white_piece_count:]
+        if piece_index < 6:
+            enemy_pieces = self.pieces[6:]
         else:
-            enemy_pieces = self.pieces[:white_piece_count]
+            enemy_pieces = self.pieces[:6]
         
         max_move_dist = 3
         for e in enemy_pieces:
@@ -92,7 +89,12 @@ class State:
         
     def getWinner(self):
         p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12 = self.pieces
-        w1,w2,w3,w4,w5,w6,b1,b2,b3,b4,b5,b6 = [tuple(p1),tuple(p2),tuple(p3),tuple(p4),tuple(p5),tuple(p6),tuple(p7),tuple(p8),tuple(p9),tuple(p10),tuple(p11),tuple(p12)]
+        w1 = tuple(p1)
+        w2 = tuple(p2)
+        w3 = tuple(p3)
+        w4 = tuple(p4)
+        w5 = tuple(p5)
+        w6 = tuple(p6)
         
         # (1, 2, 3, 4) - 1
         # (1, 2, 3, 5) - 2
@@ -124,9 +126,15 @@ class State:
                 is_square_map[frozenset([w2, w3, w5, w6])] or \
                 is_square_map[frozenset([w2, w4, w5, w6])] or \
                 is_square_map[frozenset([w3, w4, w5, w6])]: return 0
-                
         
-        elif is_square_map[frozenset([b1, b2, b3, b4])] or \
+        b1 = tuple(p7)
+        b2 = tuple(p8)
+        b3 = tuple(p9)
+        b4 = tuple(p10)
+        b5 = tuple(p11)
+        b6 = tuple(p12)
+                
+        if is_square_map[frozenset([b1, b2, b3, b4])] or \
                 is_square_map[frozenset([b1, b2, b3, b5])] or \
                 is_square_map[frozenset([b1, b2, b3, b6])] or \
                 is_square_map[frozenset([b1, b2, b4, b5])] or \
@@ -159,8 +167,8 @@ class State:
         # OTHERWISE NO CLEAR WINNER
         #good heuristic: distance between pieces and 
         
-        i_offset = color*white_piece_count
-        opp_i_offset = white_piece_count - i_offset
+        i_offset = color*6
+        opp_i_offset = 6 - i_offset
         
         score = 0
         for i in indices_to_check:
@@ -181,8 +189,8 @@ class State:
         return score
     
     def possibleNextStates(self, color):
-        i_offset = color*white_piece_count
-        opp_i_offset = white_piece_count - i_offset
+        i_offset = color*6
+        opp_i_offset = 6 - i_offset
         
         p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12 = self.pieces
         
@@ -300,7 +308,5 @@ with open('caching/is_square_map.pickle', 'rb') as file:
 #global variables for performance: no need to instantiate these every time since they are constant
 directions = [[-1,0], [1,0], [0,-1], [0,1]]
 indices_to_check = range(6)
-white_piece_count = 6
-abs=abs
 
 test_list = [9]*1000

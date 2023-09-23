@@ -19,8 +19,8 @@ def _formsSquare(pieces):
 coordinate_options = []
 is_square_map = {}
 
-for x in range(8):
-    for y in range(8):
+for x in range(7):
+    for y in range(7):
         coordinate_options.append((x+1, y+1))
         
 for piece_combination in combinations(coordinate_options, 4):
