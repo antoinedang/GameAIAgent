@@ -64,7 +64,7 @@ class Agent:
 class GameClient:
     def __init__(self, color, gameID, ip="156trlinux-1.ece.mcgill.ca", port=12345, initialBoardState=State()):
         self.board_state = initialBoardState
-        print("Starting agent.")
+        print("\nStarting agent...")
         self.agent = Agent(color)
         self.gameID = gameID
         self.port = port
@@ -77,11 +77,11 @@ class GameClient:
         server.connect((self.ip, self.port))
         print("Successfully connected to game server.")
         
-        agent_connected = True
-        opponent_connected = True
+        agent_connected = False
+        opponent_connected = False
         server.send("game{} {}\n".format(self.gameID, "black" if self.color else "white").encode())
         
-        while not agent_connected and opponent_connected:
+        while not (agent_connected and opponent_connected):
             msg = server.recv(1024).decode()
             if msg == "game{} {}".format(self.gameID, "black" if self.color else "white"):
                 print("Successfully joined the game.")
@@ -90,7 +90,7 @@ class GameClient:
                 print("Opponent has joined the game.")
                 opponent_connected = True
         
-        print("Starting gameplay...")
+        print("Starting gameplay...\n")
         self.board_state.display()
         
         if not self.color: #play first
