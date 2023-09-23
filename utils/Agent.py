@@ -66,7 +66,6 @@ class GameClient:
         self.board_state = initialBoardState
         print("Starting agent.")
         self.agent = Agent(color)
-        self.board_state.display()
         self.gameID = gameID
         self.port = port
         self.ip = ip
@@ -77,8 +76,23 @@ class GameClient:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.connect((self.ip, self.port))
         print("Successfully connected to game server.")
+        
+        agent_connected = True
+        opponent_connected = True
         server.send("game{} {}\n".format(self.gameID, "black" if self.color else "white").encode())
-        print("Registered in game ID {} as the {} player.".format(self.gameID, "Black" if self.color else "White"))
+        
+        while not agent_connected and opponent_connected:
+            msg = server.recv(1024).decode()
+            if msg == "game{} {}".format(self.gameID, "black" if self.color else "white"):
+                print("Successfully joined the game.")
+                agent_connected = True
+            if msg == "game{} {}".format(self.gameID, "white" if self.color else "black"):
+                print("Opponent has joined the game.")
+                opponent_connected = True
+        
+        print("Starting gameplay...")
+        self.board_state.display()
+        
         if not self.color: #play first
             #compute our move and send to server
             our_move = self.agent.getNextMove(self.board_state)
@@ -91,6 +105,7 @@ class GameClient:
             
         #start game
         while True:
+            print("Waiting for opponent move...")
             #receive message from server for opponent move
             opponent_move = server.recv(1024).decode()
             if ("B" if self.color else "W") in opponent_move: continue # ignore messages about our own moves
