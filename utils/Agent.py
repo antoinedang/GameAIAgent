@@ -93,7 +93,7 @@ class GameClient:
         while True:
             #receive message from server for opponent move
             opponent_move = server.recv(1024).decode()
-            if self.color in opponent_move: continue # ignore messages about our own moves
+            if ("B" if self.color else "W") in opponent_move: continue # ignore messages about our own moves
             print("Received " + opponent_move)
             
             #update state of the board after opponent's move
