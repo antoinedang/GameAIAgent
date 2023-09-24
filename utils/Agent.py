@@ -18,7 +18,6 @@ class Agent:
         self.try_to_seperate_pieces = False
         
     def getNextMove(self, state):
-        print(len(state.possibleNextStates(self.color) + state.possibleNextStates(self.opponent_color)))
         if len(state.possibleNextStates(self.color) + state.possibleNextStates(self.opponent_color)) < self.move_threshold_to_seperate:
             self.try_to_seperate_pieces = True
         else:
