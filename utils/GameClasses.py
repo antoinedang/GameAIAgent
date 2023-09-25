@@ -169,8 +169,6 @@ class State:
         i_offset = color*6
         opp_i_offset = 6 - i_offset
         
-        # print(try_to_seperate_pieces)
-        
         score = 0
         if try_to_seperate_pieces:
             for i in indices_to_check:
