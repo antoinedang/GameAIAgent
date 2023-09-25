@@ -4,7 +4,7 @@ import socket
 import time
 
 class Agent:
-    def __init__(self, color, minSearchDepth=3, time_cutoff=9, iterative_deepening=True, useAlphaBetaPruning=True):
+    def __init__(self, color, minSearchDepth=4, time_cutoff=9, iterative_deepening=True, useAlphaBetaPruning=True):
         self.color = color
         self.opponent_color = color ^ 1
         self.minSearchDepth = minSearchDepth
@@ -14,14 +14,17 @@ class Agent:
         self.next_states = []
         self.iterative_deepening = iterative_deepening
         self.useAlphaBetaPruning = useAlphaBetaPruning
-        self.move_threshold_to_seperate = 30
         self.try_to_seperate_pieces = False
         
     def getNextMove(self, state):
         if len(state.possibleNextStates(self.color) + state.possibleNextStates(self.opponent_color)) < self.move_threshold_to_seperate:
+            if not self.try_to_seperate_pieces: print(" >> {} trying to spread pieces.".format("Black" if self.color else "White"))
             self.try_to_seperate_pieces = True
+            self.move_threshold_to_seperate = 40
         else:
+            if self.try_to_seperate_pieces: print(" >> {} trying to condense pieces.".format("Black" if self.color else "White"))
             self.try_to_seperate_pieces = False
+            self.move_threshold_to_seperate = 30
         self.start_time = time.time()
         self.extraDepth = 0
         
