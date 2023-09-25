@@ -15,6 +15,3 @@ Then follow the CLI instructions.
 ![ECSE 526 A1 report (1)-06](https://github.com/antoinedang/ModifiedConnect4Agent/assets/25635487/675b732c-c795-42b9-9546-202076813bcf)
 ![ECSE 526 A1 report (1)-07](https://github.com/antoinedang/ModifiedConnect4Agent/assets/25635487/61e041fe-6735-4fee-ac4f-fd0ef58fb205)
 ![ECSE 526 A1 report (1)-08](https://github.com/antoinedang/ModifiedConnect4Agent/assets/25635487/ec849bd5-4138-4743-b4e5-7f310e89ff2d)
-![ECSE 526 A1 report (1)-09](https://github.com/antoinedang/ModifiedConnect4Agent/assets/25635487/4b7a2ea4-4f0c-4060-be00-e722fdbc64b5)
-![ECSE 526 A1 report (1)-10](https://github.com/antoinedang/ModifiedConnect4Agent/assets/25635487/9e06961c-1720-49b4-a8d3-358a10e212e1)
-![ECSE 526 A1 report (1)-11](https://github.com/antoinedang/ModifiedConnect4Agent/assets/25635487/73544030-c48e-4109-bc0f-283515068ebc)
