@@ -15,6 +15,7 @@ class Agent:
         self.iterative_deepening = iterative_deepening
         self.useAlphaBetaPruning = useAlphaBetaPruning
         self.try_to_seperate_pieces = False
+        self.move_threshold_to_seperate = 30
         
     def getNextMove(self, state):
         if len(state.possibleNextStates(self.color) + state.possibleNextStates(self.opponent_color)) < self.move_threshold_to_seperate:
